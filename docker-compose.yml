@@ -39,14 +39,14 @@ services:
       - laravel_storage:/var/www/html/storage
     environment:
       APP_ENV:              ${APP_ENV:-production}
-      APP_KEY:              ${APP_KEY}
+      APP_KEY:              ${APP_KEY:-base64:7vG8Q7r5f9m7W7v8Q7r5f9m7W7v8Q7r5f9m7W7v8Q7r5=} # placeholder, will be regenerated
       APP_DEBUG:            ${APP_DEBUG:-false}
       DB_CONNECTION:        pgsql
       DB_HOST:              db
       DB_PORT:              5432
       DB_DATABASE:          ${DB_DATABASE:-deveduhub}
       DB_USERNAME:          ${DB_USERNAME:-postgres}
-      DB_PASSWORD:          ${DB_PASSWORD}
+      DB_PASSWORD:          ${DB_PASSWORD:-postgres}
       REDIS_HOST:           redis
       REDIS_PORT:           6379
       QUEUE_CONNECTION:     redis
@@ -175,11 +175,11 @@ services:
       - laravel_storage:/var/www/html/storage
     environment:
       APP_ENV:          ${APP_ENV:-production}
-      APP_KEY:          ${APP_KEY}
+      APP_KEY:          ${APP_KEY:-base64:7vG8Q7r5f9m7W7v8Q7r5f9m7W7v8Q7r5f9m7W7v8Q7r5=}
       DB_HOST:          db
       DB_DATABASE:      ${DB_DATABASE:-deveduhub}
       DB_USERNAME:      ${DB_USERNAME:-postgres}
-      DB_PASSWORD:      ${DB_PASSWORD}
+      DB_PASSWORD:      ${DB_PASSWORD:-postgres}
       REDIS_HOST:       redis
       QUEUE_CONNECTION: redis
       GRADER_URL:       http://grader:8000
@@ -215,11 +215,11 @@ services:
       - laravel_storage:/var/www/html/storage
     environment:
       APP_ENV:          ${APP_ENV:-production}
-      APP_KEY:          ${APP_KEY}
+      APP_KEY:          ${APP_KEY:-base64:7vG8Q7r5f9m7W7v8Q7r5f9m7W7v8Q7r5f9m7W7v8Q7r5=}
       DB_HOST:          db
       DB_DATABASE:      ${DB_DATABASE:-deveduhub}
       DB_USERNAME:      ${DB_USERNAME:-postgres}
-      DB_PASSWORD:      ${DB_PASSWORD}
+      DB_PASSWORD:      ${DB_PASSWORD:-postgres}
       REDIS_HOST:       redis
       QUEUE_CONNECTION: redis
       MAIL_MAILER:      ${MAIL_MAILER:-log}
@@ -249,11 +249,11 @@ services:
       - laravel_storage:/var/www/html/storage
     environment:
       APP_ENV:     ${APP_ENV:-production}
-      APP_KEY:     ${APP_KEY}
+      APP_KEY:     ${APP_KEY:-base64:7vG8Q7r5f9m7W7v8Q7r5f9m7W7v8Q7r5f9m7W7v8Q7r5=}
       DB_HOST:     db
       DB_DATABASE: ${DB_DATABASE:-deveduhub}
       DB_USERNAME: ${DB_USERNAME:-postgres}
-      DB_PASSWORD: ${DB_PASSWORD}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
       REDIS_HOST:  redis
     depends_on:
       db:
