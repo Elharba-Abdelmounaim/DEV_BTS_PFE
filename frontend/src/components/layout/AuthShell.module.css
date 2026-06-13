@@ -1,0 +1,95 @@
+.root {
+  display:     grid;
+  grid-template-columns: 1fr 1fr;
+  min-height:  100vh;
+}
+
+@media (max-width: 768px) {
+  .root { grid-template-columns: 1fr; }
+  .panel { display: none; }
+}
+
+/* ── Left decorative panel ─────────────────────────────────────────────────── */
+.panel {
+  background:   var(--color-primary);
+  position:     relative;
+  overflow:     hidden;
+}
+
+.panelInner {
+  display:        flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height:         100%;
+  padding:        48px;
+}
+
+.logo {
+  display:     flex;
+  align-items: center;
+  gap:         12px;
+}
+
+.logoMark {
+  width:        40px;
+  height:       40px;
+  background:   var(--color-accent);
+  border-radius: 10px;
+  display:      flex;
+  align-items:  center;
+  justify-content: center;
+  font-family:  var(--font-display);
+  font-size:    22px;
+  color:        #fff;
+  flex-shrink:  0;
+}
+
+.logoText {
+  font-family: var(--font-display);
+  font-size:   22px;
+  color:       #fff;
+  letter-spacing: -0.01em;
+}
+
+.quote {
+  max-width: 320px;
+}
+
+.quote p {
+  font-family:  var(--font-display);
+  font-size:    28px;
+  font-style:   italic;
+  color:        rgba(255, 255, 255, 0.85);
+  line-height:  1.35;
+}
+
+/* ── Decorative grid ───────────────────────────────────────────────────────── */
+.decorGrid {
+  display:               grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap:                   8px;
+  opacity:               0.15;
+}
+
+@keyframes cell-in {
+  from { opacity: 0; transform: scale(0.6); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.decorCell {
+  aspect-ratio:    1;
+  border-radius:   6px;
+  background:      rgba(255,255,255,0.5);
+  animation:       cell-in 400ms var(--ease) both;
+}
+
+.decorCell:nth-child(even) { background: var(--color-accent); opacity: 0.6; }
+
+/* ── Right form panel ──────────────────────────────────────────────────────── */
+.form {
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  padding:         40px 24px;
+  background:      var(--color-bg);
+}

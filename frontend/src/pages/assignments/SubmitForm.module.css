@@ -1,0 +1,85 @@
+.page {
+  display: grid;
+  place-items: center;
+  padding: 2rem 0;
+  animation: pageEnter 0.4s ease-out;
+}
+
+.card {
+  background: white;
+  padding: 2.5rem;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: 560px;
+}
+
+.card h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.75rem;
+  color: var(--color-primary);
+  margin: 0 0 0.5rem;
+}
+
+.subtitle {
+  color: var(--color-text-muted);
+  margin: 0 0 2rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.globalError {
+  background: #fee;
+  border: 1px solid #fcc;
+  color: #c33;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+}
+
+.actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.cancelBtn {
+  flex: 1;
+  padding: 0.875rem;
+  background: transparent;
+  border: 1.5px solid #e5e7eb;
+  color: var(--color-text);
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancelBtn:hover {
+  border-color: var(--color-primary);
+}
+
+.submitBtn {
+  flex: 1;
+  padding: 0.875rem;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.submitBtn:hover:not(:disabled) {
+  background: var(--color-primary-dark, #0f1e33);
+}
+
+.submitBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

@@ -1,0 +1,37 @@
+.form { padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+
+.info { display: flex; flex-direction: column; gap: 8px; padding: 12px 16px; background: var(--color-bg); border: 1px solid var(--color-border); border-radius: var(--radius-md); }
+.repoLink { font-family: monospace; font-size: 13px; color: var(--color-primary); }
+.repoLink:hover { text-decoration: underline; }
+.autoScore { font-size: 12px; color: var(--color-ink-3); font-weight: 500; }
+.studentNotes { font-size: 13px; color: var(--color-ink-2); line-height: 1.6; }
+.notesLabel { font-weight: 600; color: var(--color-ink-3); font-size: 11px; text-transform: uppercase; letter-spacing: .04em; display: block; margin-bottom: 3px; }
+
+.alert { padding: 10px 14px; background: var(--color-danger-bg); border: 1px solid #F0AAAA; border-radius: var(--radius-md); font-size: 13px; color: var(--color-danger); }
+
+.row { display: grid; grid-template-columns: 180px 1fr; gap: 16px; align-items: start; }
+@media (max-width: 560px) { .row { grid-template-columns: 1fr; } }
+
+.label { font-size: 13px; font-weight: 500; color: var(--color-ink-2); letter-spacing: .01em; margin-bottom: 6px; display: block; }
+.maxLabel { font-weight: 400; color: var(--color-ink-3); }
+
+.scoreField { display: flex; flex-direction: column; }
+.scoreInputWrap { display: flex; flex-direction: column; gap: 8px; }
+
+.scoreInput { width: 100%; padding: 12px 14px; border: 1.5px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); color: var(--color-ink); font-size: 22px; font-family: var(--font-display); text-align: center; outline: none; transition: border-color var(--duration) var(--ease), box-shadow var(--duration) var(--ease); }
+.scoreInput:focus { border-color: var(--color-primary); box-shadow: 0 0 0 3px var(--color-primary-light); }
+.inputError { border-color: var(--color-danger) !important; }
+.fieldError { font-size: 12px; color: var(--color-danger); font-weight: 500; }
+
+.scoreBar { height: 6px; border-radius: 3px; background: linear-gradient(to right, var(--color) var(--pct), var(--color-border) var(--pct)); transition: all .3s ease; }
+
+.feedbackField { display: flex; flex-direction: column; }
+.textarea { width: 100%; padding: 10px 14px; border: 1.5px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); color: var(--color-ink); font-size: 14px; font-family: var(--font-body); resize: vertical; outline: none; line-height: 1.6; transition: border-color var(--duration) var(--ease), box-shadow var(--duration) var(--ease); }
+.textarea::placeholder { color: var(--color-ink-4); }
+.textarea:focus { border-color: var(--color-primary); box-shadow: 0 0 0 3px var(--color-primary-light); }
+
+.actions { display: flex; align-items: center; gap: 12px; }
+.submitBtn { padding: 9px 20px; background: var(--color-primary); color: #fff; border-radius: var(--radius-md); font-size: 14px; font-weight: 500; font-family: var(--font-body); display: flex; align-items: center; gap: 6px; transition: background var(--duration) var(--ease); }
+.submitBtn:hover:not(:disabled) { background: var(--color-primary-hover); }
+.submitBtn:disabled { opacity: .6; cursor: not-allowed; }
+.hint { font-size: 12px; color: var(--color-ink-3); }

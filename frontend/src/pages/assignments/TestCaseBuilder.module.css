@@ -1,0 +1,39 @@
+.root { display: flex; flex-direction: column; gap: 12px; }
+
+.header { display: flex; align-items: center; justify-content: space-between; }
+.headerLabel { font-size: 13px; font-weight: 600; color: var(--color-ink-2); }
+.weightTotal { font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 20px; }
+.weightOk   { background: var(--color-success-bg); color: var(--color-success); }
+.weightWarn { background: var(--color-warning-bg); color: var(--color-warning); }
+
+.empty { font-size: 13px; color: var(--color-ink-3); text-align: center; padding: 16px 0; }
+
+.list { display: flex; flex-direction: column; gap: 8px; }
+
+.card { border: 1px solid var(--color-border); border-radius: var(--radius-md); overflow: hidden; background: var(--color-surface); }
+
+.cardHead { display: flex; align-items: center; gap: 10px; padding: 12px 14px; cursor: pointer; user-select: none; transition: background var(--duration) var(--ease); }
+.cardHead:hover { background: var(--color-bg); }
+
+.cardNum      { font-size: 11px; font-weight: 700; color: var(--color-ink-4); min-width: 20px; }
+.cardName     { font-size: 13px; font-weight: 500; color: var(--color-ink); flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cardStrategy { font-size: 11px; color: var(--color-ink-3); flex-shrink: 0; }
+.cardWeight   { font-size: 11px; font-weight: 600; padding: 2px 7px; background: var(--color-primary-light); color: var(--color-primary); border-radius: 20px; flex-shrink: 0; }
+
+.removeBtn { font-size: 12px; color: var(--color-danger); padding: 2px 6px; border-radius: 4px; flex-shrink: 0; transition: background var(--duration) var(--ease); }
+.removeBtn:hover { background: var(--color-danger-bg); }
+
+.chevron { color: var(--color-ink-3); flex-shrink: 0; transition: transform var(--duration) var(--ease); }
+.chevronOpen { transform: rotate(180deg); }
+
+.editor { padding: 16px 14px; border-top: 1px solid var(--color-border); background: var(--color-bg); display: flex; flex-direction: column; gap: 12px; }
+.editorRow { display: grid; grid-template-columns: 1fr auto; gap: 12px; }
+.editorField { display: flex; flex-direction: column; gap: 5px; }
+.editorLabel { font-size: 12px; font-weight: 500; color: var(--color-ink-2); }
+.editorInput, .editorSelect { padding: 8px 12px; border: 1.5px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); color: var(--color-ink); font-size: 13px; font-family: var(--font-body); outline: none; transition: border-color var(--duration) var(--ease); }
+.editorInput:focus, .editorSelect:focus { border-color: var(--color-primary); }
+.editorInput::placeholder { color: var(--color-ink-4); }
+.editorSelect { width: 100%; }
+
+.addBtn { padding: 9px 16px; border: 1.5px dashed var(--color-border-strong); border-radius: var(--radius-md); font-size: 13px; font-weight: 500; color: var(--color-primary); font-family: var(--font-body); transition: border-color var(--duration) var(--ease), background var(--duration) var(--ease); text-align: center; }
+.addBtn:hover { border-color: var(--color-primary); background: var(--color-primary-light); }
