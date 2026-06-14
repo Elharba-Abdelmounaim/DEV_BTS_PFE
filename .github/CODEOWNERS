@@ -1,0 +1,22 @@
+# DevEduHub code ownership
+# These owners are automatically requested for review on pull requests.
+
+# Global fallback
+*                           @deveduhub/backend-team
+
+# Backend
+app/                        @deveduhub/backend-team
+database/                   @deveduhub/backend-team
+routes/                     @deveduhub/backend-team
+
+# Python grader
+grader/                     @deveduhub/backend-team @deveduhub/devops-team
+
+# Frontend
+frontend/                   @deveduhub/frontend-team
+
+# Infrastructure
+docker/                     @deveduhub/devops-team
+docker-compose*.yml         @deveduhub/devops-team
+.github/workflows/          @deveduhub/devops-team
+Makefile                    @deveduhub/devops-team
