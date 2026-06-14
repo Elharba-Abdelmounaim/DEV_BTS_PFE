@@ -7,87 +7,87 @@
 # ── Stack ─────────────────────────────────────────────────────────────────────
 
 up:
-	docker compose -f docker-compose.yml -f backend/docker-compose.dev.yml up -d
+	docker-compose -f docker-compose.yml -f backend/docker-compose.dev.yml up -d
 
 down:
-	docker compose down
+	docker-compose down
 
 build:
-	docker compose build --no-cache
+	docker-compose build --no-cache
 
 restart:
-	docker compose restart app worker notifier frontend
+	docker-compose restart app worker notifier frontend
 
 # ── Laravel ───────────────────────────────────────────────────────────────────
 
 migrate:
-	docker compose exec app php artisan migrate
+	docker-compose exec -T app php artisan migrate
 
 seed:
-	docker compose exec app php artisan migrate:fresh --seed
+	docker-compose exec -T app php artisan migrate:fresh --seed
 
 fresh: seed
 
 key:
-	docker compose exec app php artisan key:generate
+	docker-compose exec -T app php artisan key:generate
 
 cache-clear:
-	docker compose exec app php artisan optimize:clear
+	docker-compose exec -T app php artisan optimize:clear
 
 # ── Testing ───────────────────────────────────────────────────────────────────
 
 test:
-	docker compose exec app php artisan test --parallel
+	docker-compose exec -T app php artisan test --parallel
 
 test-coverage:
-	docker compose exec app php artisan test --coverage
+	docker-compose exec -T app php artisan test --coverage
 
 test-python:
-	docker compose exec grader pytest test_grader.py -v
+	docker-compose exec -T grader pytest test_grader.py -v
 
 # ── Queue workers (manual start outside Docker) ───────────────────────────────
 
 worker-grading:
-	docker compose exec app php artisan queue:work redis \
+	docker-compose exec -T app php artisan queue:work redis \
 		--queue=grading --timeout=180 --tries=3
 
 worker-notify:
-	docker compose exec app php artisan queue:work redis \
+	docker-compose exec -T app php artisan queue:work redis \
 		--queue=notifications --timeout=30 --tries=5
 
 queue-monitor:
-	docker compose exec app php artisan queue:monitor redis:grading,redis:notifications
+	docker-compose exec -T app php artisan queue:monitor redis:grading,redis:notifications
 
 failed-jobs:
-	docker compose exec app php artisan queue:failed
+	docker-compose exec -T app php artisan queue:failed
 
 retry-failed:
-	docker compose exec app php artisan queue:retry all
+	docker-compose exec -T app php artisan queue:retry all
 
 # ── Logs ──────────────────────────────────────────────────────────────────────
 
 logs:
-	docker compose logs -f app worker notifier grader frontend
+	docker-compose logs -f app worker notifier grader frontend
 
 logs-nginx:
-	docker compose logs -f nginx
+	docker-compose logs -f nginx
 
 logs-db:
-	docker compose logs -f db
+	docker-compose logs -f db
 
 # ── Shell access ──────────────────────────────────────────────────────────────
 
 shell:
-	docker compose exec app sh
+	docker-compose exec -T app sh
 
 shell-db:
-	docker compose exec db psql -U postgres deveduhub
+	docker-compose exec -T db psql -U postgres deveduhub
 
 shell-redis:
-	docker compose exec redis redis-cli
+	docker-compose exec -T redis redis-cli
 
 shell-grader:
-	docker compose exec grader sh
+	docker-compose exec -T grader sh
 
 # ── Health checks ─────────────────────────────────────────────────────────────
 

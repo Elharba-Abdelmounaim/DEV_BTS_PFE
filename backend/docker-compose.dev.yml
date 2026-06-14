@@ -19,8 +19,6 @@ services:
     environment:
       APP_ENV:   local
       APP_DEBUG: "true"
-    volumes:
-      - .:/var/www/html   # live code mount — changes reflect immediately
 
   nginx:
     ports:
