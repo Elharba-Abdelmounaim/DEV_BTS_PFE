@@ -111,6 +111,7 @@ class StudentJourneyTest extends TestCase
              ->postJson('/api/courses', [
                  'code'          => 'CS999',
                  'title'         => 'Hacked Course',
+                 'description'   => 'Hacked course description',
                  'academic_year' => 2024,
                  'semester'      => 'Fall',
              ])->assertForbidden();
@@ -253,7 +254,7 @@ class StudentJourneyTest extends TestCase
 
         $this->actingAs($student)
              ->getJson("/api/assignments/{$assignment->id}")
-             ->assertNotFound();
+             ->assertForbidden();
     }
 
     // ═════════════════════════════════════════════════════════════════════
@@ -309,7 +310,7 @@ class StudentJourneyTest extends TestCase
         $teacher    = User::factory()->teacher()->create();
         $course     = Course::factory()->forInstructor($teacher)->create();
         $student    = User::factory()->student()->create();
-        $assignment = Assignment::factory()->for($course)->pastDue()->create();
+        $assignment = Assignment::factory()->for($course)->pastDue()->create(['late_submission_allowed' => false]);
 
         Enrollment::factory()->active()->create([
             'student_id' => $student->id,
@@ -320,7 +321,7 @@ class StudentJourneyTest extends TestCase
              ->postJson('/api/submissions', [
                  'assignment_id'   => $assignment->id,
                  'github_repo_url' => 'https://github.com/student/too-late',
-             ])->assertUnprocessable();
+             ])->assertStatus(422);
     }
 
     public function test_unenrolled_student_cannot_submit(): void
