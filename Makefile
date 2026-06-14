@@ -2,9 +2,12 @@
 # Shortcuts for common Docker + Laravel + Python commands.
 # Usage: make <target>
 
-.PHONY: up down build fresh migrate seed test logs shell
+.PHONY: setup up down build fresh migrate seed test logs shell
 
 # ── Stack ─────────────────────────────────────────────────────────────────────
+
+setup:
+	./setup.sh
 
 up:
 	docker-compose -f docker-compose.yml -f backend/docker-compose.dev.yml up -d
