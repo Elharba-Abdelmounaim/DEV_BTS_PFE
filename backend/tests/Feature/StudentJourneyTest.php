@@ -93,6 +93,7 @@ class StudentJourneyTest extends TestCase
              ->postJson('/api/courses', [
                  'code'          => 'CS301',
                  'title'         => 'Data Structures',
+                 'description'   => 'Introduction to data structures and algorithms',
                  'academic_year' => 2024,
                  'semester'      => 'Fall',
                  'credits'       => 3,
