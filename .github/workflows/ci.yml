@@ -19,6 +19,10 @@ jobs:
     name: Laravel (PHP ${{ matrix.php }})
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: backend
+
     strategy:
       matrix:
         php: ['8.2']
@@ -60,7 +64,7 @@ jobs:
       - name: Cache Composer deps
         uses: actions/cache@v4
         with:
-          path: vendor
+          path: backend/vendor
           key:  composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: composer-
 
@@ -138,8 +142,8 @@ jobs:
       - name: Build Laravel image
         uses: docker/build-push-action@v5
         with:
-          context:    .
-          file:       docker/Dockerfile.laravel
+          context:    ./backend
+          file:       ./backend/docker/Dockerfile.laravel
           push:       false
           cache-from: type=gha
           cache-to:   type=gha,mode=max
@@ -172,6 +176,10 @@ jobs:
     name: Code quality
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: backend
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -185,7 +193,7 @@ jobs:
       - name: Cache Composer
         uses: actions/cache@v4
         with:
-          path: vendor
+          path: backend/vendor
           key:  composer-${{ hashFiles('**/composer.lock') }}
 
       - name: Install deps
@@ -199,10 +207,10 @@ jobs:
         with:
           node-version: '20'
           cache: npm
-          cache-dependency-path: frontend/package-lock.json
+          cache-dependency-path: ../frontend/package-lock.json
 
       - name: Install frontend deps
-        run: cd frontend && npm ci
+        run: cd ../frontend && npm ci
 
       - name: TypeScript check
-        run: cd frontend && npx tsc --noEmit
+        run: cd ../frontend && npx tsc --noEmit
