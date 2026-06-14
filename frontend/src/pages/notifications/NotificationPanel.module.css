@@ -8,13 +8,18 @@
   font-size: 1.25rem;
   cursor: pointer;
   position: relative;
-  padding: 0.5rem;
+  padding: 8px;
   border-radius: 8px;
-  transition: background 0.2s;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-ink-2);
 }
 
 .bell:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--color-bg);
+  color: var(--color-ink);
 }
 
 .badge {

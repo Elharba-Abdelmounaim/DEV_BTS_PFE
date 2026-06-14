@@ -53,9 +53,13 @@ export default function NavBar() {
               aria-expanded={menuOpen}
               aria-haspopup="menu"
             >
-              <span className={styles.avatar}>
-                {user?.first_name?.[0]}{user?.last_name?.[0]}
-              </span>
+              {user?.avatar_url ? (
+                <img src={user.avatar_url} alt="" className={styles.avatar} />
+              ) : (
+                <span className={styles.avatar}>
+                  {user?.first_name?.[0]}{user?.last_name?.[0]}
+                </span>
+              )}
               <span className={styles.userName}>{user?.first_name}</span>
               <svg className={`${styles.chevron} ${menuOpen ? styles.chevronOpen : ''}`}
                 width="16" height="16" viewBox="0 0 16 16" fill="none">
