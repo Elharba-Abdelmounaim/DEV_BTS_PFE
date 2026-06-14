@@ -12,16 +12,9 @@ concurrency:
 
 jobs:
 
-  # ────────────────────────────────────────────────────────────────────────────
-  # 1. Laravel tests (PHPUnit)
-  # ────────────────────────────────────────────────────────────────────────────
   laravel-tests:
     name: Laravel (PHP ${{ matrix.php }})
     runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        working-directory: backend
 
     strategy:
       matrix:
@@ -65,17 +58,18 @@ jobs:
         uses: actions/cache@v4
         with:
           path: backend/vendor
-          key:  composer-${{ hashFiles('**/composer.lock') }}
+          key:  composer-${{ hashFiles('backend/composer.lock') }}
           restore-keys: composer-
 
       - name: Install Composer deps
-        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+        run: cd backend && composer install --no-interaction --prefer-dist --optimize-autoloader
 
       - name: Copy .env
-        run: cp .env.example .env
+        run: cd backend && cp .env.example .env
 
       - name: Configure test environment
         run: |
+          cd backend
           php artisan key:generate
           sed -i 's/DB_HOST=.*/DB_HOST=127.0.0.1/'      .env
           sed -i 's/DB_DATABASE=.*/DB_DATABASE=deveduhub_test/' .env
@@ -90,21 +84,14 @@ jobs:
             -c 'CREATE EXTENSION IF NOT EXISTS "pgcrypto";'
 
       - name: Run migrations
-        run: php artisan migrate --force
+        run: cd backend && php artisan migrate --force
 
       - name: Run tests (parallel)
-        run: php artisan test --parallel --stop-on-failure
+        run: cd backend && php artisan test --parallel --stop-on-failure
 
-  # ────────────────────────────────────────────────────────────────────────────
-  # 2. Python grader tests (pytest)
-  # ────────────────────────────────────────────────────────────────────────────
   python-tests:
     name: Python Grader (pytest)
     runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        working-directory: grader
 
     steps:
       - name: Checkout
@@ -118,14 +105,11 @@ jobs:
           cache-dependency-path: grader/requirements.txt
 
       - name: Install dependencies
-        run: pip install -r requirements.txt pytest
+        run: cd grader && pip install -r requirements.txt pytest
 
       - name: Run tests
-        run: pytest test_grader.py -v --tb=short
+        run: cd grader && pytest test_grader.py -v --tb=short
 
-  # ────────────────────────────────────────────────────────────────────────────
-  # 3. Docker build check (Laravel + Grader + Frontend)
-  # ────────────────────────────────────────────────────────────────────────────
   docker-build:
     name: Docker build
     runs-on: ubuntu-latest
@@ -169,16 +153,9 @@ jobs:
           cache-to:   type=gha,mode=max
           tags:       deveduhub-frontend:ci
 
-  # ────────────────────────────────────────────────────────────────────────────
-  # 4. Code quality checks
-  # ────────────────────────────────────────────────────────────────────────────
   code-quality:
     name: Code quality
     runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        working-directory: backend
 
     steps:
       - name: Checkout
@@ -194,23 +171,23 @@ jobs:
         uses: actions/cache@v4
         with:
           path: backend/vendor
-          key:  composer-${{ hashFiles('**/composer.lock') }}
+          key:  composer-${{ hashFiles('backend/composer.lock') }}
 
       - name: Install deps
-        run: composer install --no-interaction --prefer-dist
+        run: cd backend && composer install --no-interaction --prefer-dist
 
-      - name: Check PHP syntax (lint all files)
-        run: find app -name '*.php' -exec php -l {} \; | grep -v "^No syntax errors"  || true
+      - name: Check PHP syntax
+        run: cd backend && find app -name '*.php' -exec php -l {} \; | grep -v "^No syntax errors" || true
 
-      - name: Setup Node for frontend lint
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: npm
-          cache-dependency-path: ../frontend/package-lock.json
+          cache-dependency-path: frontend/package-lock.json
 
       - name: Install frontend deps
-        run: cd ../frontend && npm ci
+        run: cd frontend && npm ci
 
       - name: TypeScript check
-        run: cd ../frontend && npx tsc --noEmit
+        run: cd frontend && npx tsc --noEmit
