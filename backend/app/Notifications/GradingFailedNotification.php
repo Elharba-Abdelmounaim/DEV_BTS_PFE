@@ -12,12 +12,12 @@ class GradingFailedNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    public $queueName = 'notifications';
-
     public function __construct(
         private readonly Submission $submission,
         private readonly string     $reason = '',
-    ) {}
+    ) {
+        $this->queue = 'notifications';
+    }
 
     public function via(object $notifiable): array
     {

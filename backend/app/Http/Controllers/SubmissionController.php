@@ -78,20 +78,9 @@ class SubmissionController extends Controller
             'is_late'           => $assignment->isPastDue(),
         ]);
 
-        public function isAutoGradable(): bool
-            {
-                $testCases = $this->test_cases;
-                $dockerConfig = $this->docker_config;
-                
-                if (is_string($testCases)) {
-                    $testCases = json_decode($testCases, true);
-                }
-                if (is_string($dockerConfig)) {
-                    $dockerConfig = json_decode($dockerConfig, true);
-                }
-                
-                return ! empty($testCases) && ! empty($dockerConfig);
-            }
+        if ($assignment->isAutoGradable()) {
+            GradeSubmissionJob::dispatch($submission);
+        }
 
         return new SubmissionResource($submission->load(['assignment', 'student']));
     }

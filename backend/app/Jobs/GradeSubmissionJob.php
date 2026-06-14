@@ -18,16 +18,15 @@ class GradeSubmissionJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    // ── Queue config ──────────────────────────────────────────────────────
-    public $queueName = 'grading';
-    public int    $timeout   = 180;   // max seconds this job runs (covers HTTP + processing)
-    public int    $tries    = 3;     // Laravel auto-retry on failure
-    public int    $backoff  = 60;    // seconds between retries (exponential: 60, 120, 180)
+    public int $timeout = 180;
+    public int $tries   = 3;
 
     // ── Constructor ───────────────────────────────────────────────────────
     public function __construct(
         public readonly Submission $submission
-    ) {}
+    ) {
+        $this->queue = 'grading';
+    }
 
     // ── Handle ────────────────────────────────────────────────────────────
     public function handle(GraderApiService $grader): void
