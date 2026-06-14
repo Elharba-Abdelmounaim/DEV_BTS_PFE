@@ -18,7 +18,7 @@ jobs:
 
     strategy:
       matrix:
-        php: ['8.3']  # ← بدّل من 8.2 لـ 8.3
+        php: ['8.3']
 
     services:
       postgres:
@@ -164,7 +164,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3'  # ← بدّل من 8.2 لـ 8.3
+          php-version: '8.3'
           tools: cs2pr
 
       - name: Cache Composer
