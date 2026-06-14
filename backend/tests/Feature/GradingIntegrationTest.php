@@ -75,7 +75,7 @@ class GradingIntegrationTest extends TestCase
              ->assertCreated()
              ->assertJsonFragment(['submission_status' => 'queued']);
 
-        Queue::assertPushed(GradeSubmissionJob::class);
+        Queue::assertPushedOn('grading', GradeSubmissionJob::class);
     }
 
     public function test_submission_stays_pending_for_non_auto_gradable_assignment(): void
@@ -211,7 +211,7 @@ class GradingIntegrationTest extends TestCase
              ->assertOk()
              ->assertJsonFragment(['message' => 'Grading retry queued.']);
 
-        Queue::assertPushed(GradeSubmissionJob::class);
+        Queue::assertPushedOn('grading', GradeSubmissionJob::class);
         $submission->refresh();
         $this->assertEquals('queued', $submission->submission_status);
         $this->assertEquals(2, $submission->retry_count);
@@ -246,12 +246,12 @@ class GradingIntegrationTest extends TestCase
     public function test_student_can_read_notifications(): void
     {
         $student = $this->makeStudent();
-        $student->notify(new \App\Notifications\GradingCompletedNotification(\App\Models\Submission::factory()->create(), ['score' => 100, 'status' => 'success']));
+        $student->notify(new \Illuminate\Notifications\DatabaseNotification());
 
         $this->actingAs($student)
              ->getJson('/api/notifications')
              ->assertOk()
-             ->assertJsonStructure(['data', 'current_page']);
+             ->assertJsonStructure(['data', 'meta']);
     }
 
     public function test_student_can_mark_all_notifications_read(): void
@@ -259,7 +259,7 @@ class GradingIntegrationTest extends TestCase
         $student = $this->makeStudent();
 
         $this->actingAs($student)
-             ->postJson('/api/notifications/read-all')
+             ->patchJson('/api/notifications/read-all')
              ->assertOk()
              ->assertJsonFragment(['message' => 'All notifications marked as read.']);
     }
