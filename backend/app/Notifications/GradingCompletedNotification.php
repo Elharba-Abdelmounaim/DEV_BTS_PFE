@@ -12,7 +12,7 @@ class GradingCompletedNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    public string $queue = 'notifications';
+    public $queueName = 'notifications';
 
     public function __construct(
         private readonly Submission $submission,

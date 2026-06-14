@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreSubmissionRequest;
 use App\Http\Resources\SubmissionResource;
+use App\Jobs\GradeSubmissionJob;
 use App\Models\Assignment;
 use App\Models\Enrollment;
 use App\Models\Submission;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class SubmissionController extends Controller
@@ -33,7 +35,7 @@ class SubmissionController extends Controller
     }
 
     // ── POST /api/submissions ─────────────────────────────────────────────
-    public function store(StoreSubmissionRequest $request): SubmissionResource
+    public function store(StoreSubmissionRequest $request): SubmissionResource|JsonResponse
     {
         $assignment = Assignment::findOrFail($request->assignment_id);
         $user       = $request->user();
@@ -46,6 +48,24 @@ class SubmissionController extends Controller
 
         abort_unless($isEnrolled, 403, 'You must be enrolled in this course to submit assignments.');
 
+        if ($assignment->isPastDue() && ! $assignment->late_submission_allowed) {
+            return response()->json([
+                'message' => 'The assignment is past due and late submissions are not allowed.',
+                'errors'  => ['assignment_id' => ['Submission deadline passed.']]
+            ], 422);
+        }
+
+        $alreadySubmitted = Submission::where('assignment_id', $assignment->id)
+                                      ->where('student_id', $user->id)
+                                      ->exists();
+
+        if ($alreadySubmitted) {
+            return response()->json([
+                'message' => 'You have already submitted for this assignment.',
+                'errors'  => ['assignment_id' => ['Duplicate submission.']]
+            ], 422);
+        }
+
         $submission = Submission::create([
             'assignment_id'     => $assignment->id,
             'student_id'        => $user->id,
@@ -54,9 +74,13 @@ class SubmissionController extends Controller
             'github_commit_sha' => $request->github_commit_sha,
             'student_notes'     => $request->student_notes,
             'submitted_at'      => now(),
-            'submission_status' => 'pending',
+            'submission_status' => $assignment->isAutoGradable() ? 'queued' : 'pending',
             'is_late'           => $assignment->isPastDue(),
         ]);
+
+        if ($assignment->isAutoGradable()) {
+            GradeSubmissionJob::dispatch($submission);
+        }
 
         return new SubmissionResource($submission->load(['assignment', 'student']));
     }
@@ -107,5 +131,22 @@ class SubmissionController extends Controller
                                   ->paginate(20);
 
         return SubmissionResource::collection($submissions);
+    }
+
+    // ── POST /api/submissions/{submission}/retry ──────────────────────────
+    public function retry(Request $request, Submission $submission): JsonResponse
+    {
+        $this->authorize('retry', $submission);
+
+        abort_unless($submission->isFailed(), 422, 'Only failed submissions can be retried.');
+
+        $submission->update([
+            'submission_status' => 'queued',
+            'retry_count'       => $submission->retry_count + 1,
+        ]);
+
+        GradeSubmissionJob::dispatch($submission);
+
+        return response()->json(['message' => 'Grading retry queued.']);
     }
 }

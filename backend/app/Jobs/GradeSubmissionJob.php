@@ -19,8 +19,8 @@ class GradeSubmissionJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     // ── Queue config ──────────────────────────────────────────────────────
-    public string $queue    = 'grading';
-    public int    $timeout  = 180;   // max seconds this job runs (covers HTTP + processing)
+    public $queueName = 'grading';
+    public int    $timeout   = 180;   // max seconds this job runs (covers HTTP + processing)
     public int    $tries    = 3;     // Laravel auto-retry on failure
     public int    $backoff  = 60;    // seconds between retries (exponential: 60, 120, 180)
 
