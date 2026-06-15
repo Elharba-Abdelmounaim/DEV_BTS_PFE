@@ -125,6 +125,31 @@ export interface PaginatedResponse<T> {
   total: number;
 }
 
+
+export interface AuthContextType {
+  user: User | null;
+  initialized: boolean;
+  login: (payload: LoginPayload) => Promise<void>;
+  logout: () => void;
+  register: (payload: RegisterPayload) => Promise<void>;
+}
+
+export interface RegisterForm {
+  first_name: string;
+  last_name: string;
+  email: string;
+  password: string;
+  password_confirmation: string;
+  role: 'student' | 'teacher';
+  github_username?: string;
+}
+
+export interface TestCaseBuilderProps {
+  testCases: TestCase[];
+  onChange: React.Dispatch<React.SetStateAction<TestCase[]>>;
+  maxScore: number;
+}
+
 export interface ApiError {
   message: string;
   errors?: Record<string, string[]>;
