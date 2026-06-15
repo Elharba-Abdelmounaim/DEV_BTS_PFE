@@ -5,16 +5,12 @@ import Input from '../../components/ui/Input'
 import styles from './Auth.module.css'
 import type { RegisterPayload } from '@/types'
 
-interface RegisterForm extends RegisterPayload {
-  password_confirmation: string
-}
-
 export default function RegisterPage() {
   const { register } = useAuth()
   const navigate      = useNavigate()
 
   const { values, errors, globalError, loading, handleChange, handleSubmit } =
-    useForm<RegisterForm>({
+    useForm<RegisterPayload>({
       initialValues: {
         first_name:            '',
         last_name:             '',

@@ -13,6 +13,7 @@ interface UseFormReturn<T> {
   handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
   handleSubmit: (e: React.FormEvent) => Promise<void>;
   setValues: (updates: Partial<T>) => void;
+  setErrors: React.Dispatch<React.SetStateAction<Partial<Record<keyof T, string>>>>;
   setGlobalError: (error: string) => void;
   reset: () => void;
 }
@@ -88,6 +89,7 @@ export function useForm<T extends Record<string, any>>({
     handleChange,
     handleSubmit,
     setValues,
+    setErrors,
     setGlobalError,
     reset,
   };

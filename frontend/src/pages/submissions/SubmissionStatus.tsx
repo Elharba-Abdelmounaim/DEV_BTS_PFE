@@ -91,7 +91,7 @@ export default function SubmissionStatus() {
           </div>
           <div className={styles.infoRow}>
             <span className={styles.infoLabel}>Commit:</span>
-            <code>{submission.commit_sha.slice(0, 7)}</code>
+            <code>{submission.commit_sha?.slice(0, 7)}</code>
           </div>
           <div className={styles.infoRow}>
             <span className={styles.infoLabel}>Soumis le:</span>

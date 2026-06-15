@@ -157,15 +157,15 @@ export default function TeacherSubmissions() {
                       </div>
                     </td>
                     <td className={styles.tdRepo}>
-                      <a href={sub.github_repo_url} target="_blank" rel="noreferrer" className={styles.repoLink}>
-                        {sub.github_repo_url.replace('https://github.com/', '')}
+                      <a href={sub.github_repo_url ?? '#'} target="_blank" rel="noreferrer" className={styles.repoLink}>
+                        {(sub.github_repo_url ?? 'N/A').replace('https://github.com/', '')}
                       </a>
                       {sub.is_late && <span className={styles.latePill}>Late</span>}
                     </td>
                     <td className={styles.tdDate}>
-                      {new Date(sub.submitted_at).toLocaleDateString('en-US', {
+                      {sub.submitted_at ? new Date(sub.submitted_at).toLocaleDateString('en-US', {
                         month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit',
-                      })}
+                      }) : '—'}
                     </td>
                     <td><span className={`${styles.badge} ${st.cls}`}>{st.label}</span></td>
                     <td className={styles.tdScore}>

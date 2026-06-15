@@ -15,16 +15,17 @@ const STRATEGIES = [
 interface Props {
   testCases: TestCase[]
   onChange:  (cases: TestCase[]) => void
+  maxScore:  number
 }
 
 let _idCounter = 1
 function newId() { return `tc${_idCounter++}` }
 
-export default function TestCaseBuilder({ testCases, onChange }: Props) {
+export default function TestCaseBuilder({ testCases, onChange, maxScore }: Props) {
   const [expanded, setExpanded] = useState<string | null>(null)
 
   const add = () => {
-    const tc: TestCase = { id: newId(), name: 'New test', strategy: 'exit_zero', weight: 25 }
+    const tc: TestCase = { id: newId(), name: 'New test', strategy: 'exit_zero', weight: Math.floor(maxScore / 4) }
     onChange([...testCases, tc])
     setExpanded(tc.id)
   }
@@ -45,8 +46,8 @@ export default function TestCaseBuilder({ testCases, onChange }: Props) {
       <div className={styles.header}>
         <span className={styles.headerLabel}>Test cases ({testCases.length})</span>
         {totalWeight > 0 && (
-          <span className={`${styles.weightTotal} ${totalWeight !== 100 ? styles.weightWarn : styles.weightOk}`}>
-            Total weight: {totalWeight}/100
+          <span className={`${styles.weightTotal} ${totalWeight !== maxScore ? styles.weightWarn : styles.weightOk}`}>
+            Total weight: {totalWeight}/{maxScore}
           </span>
         )}
       </div>

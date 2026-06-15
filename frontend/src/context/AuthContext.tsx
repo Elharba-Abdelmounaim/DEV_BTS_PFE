@@ -5,6 +5,7 @@ import type { User, LoginPayload, RegisterPayload } from '../types';
 interface AuthState {
   user: User | null;
   loading: boolean;
+  initialized: boolean;
 }
 
 interface AuthContextType extends AuthState {
@@ -25,12 +26,13 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const initialState: AuthState = {
   user: null,
   loading: true,
+  initialized: false,
 };
 
 function authReducer(state: AuthState, action: AuthAction): AuthState {
   switch (action.type) {
     case 'SET_USER':
-      return { ...state, user: action.payload, loading: false };
+      return { ...state, user: action.payload, loading: false, initialized: true };
     case 'SET_LOADING':
       return { ...state, loading: action.payload };
     default:

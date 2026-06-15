@@ -98,7 +98,7 @@ export default function AssignmentDetail() {
                 </div>
                 <div className={styles.submissionMeta}>
                   <span>🔗 {sub.branch}</span>
-                  <span>📝 {sub.commit_sha.slice(0, 7)}</span>
+                  <span>📝 {sub.commit_sha?.slice(0, 7)}</span>
                   {sub.score !== null && sub.score !== undefined && (
                     <span className={styles.score}>🏆 {sub.score}/{assignment.max_score}</span>
                   )}

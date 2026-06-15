@@ -14,22 +14,24 @@ export default function SubmitForm() {
   const navigate = useNavigate();
   const [globalError, setGlobalError] = useState('');
 
-  const { values, errors, loading, handleChange, setGlobalErrors } = useForm({
-    github_url: '',
-    branch: 'main',
-    commit_sha: '',
+  const { values, errors, loading, handleChange, setErrors } = useForm({
+    initialValues: {
+      github_url: '',
+      branch: 'main',
+      commit_sha: '',
+    }
   });
 
   const validate = () => {
-    const newErrors: Record<string, string[]> = {};
+    const newErrors: Record<string, string> = {};
     if (!GITHUB_URL_REGEX.test(values.github_url)) {
-      newErrors.github_url = ['URL GitHub invalide (ex: https://github.com/user/repo)'];
+      newErrors.github_url = 'URL GitHub invalide (ex: https://github.com/user/repo)';
     }
     if (!BRANCH_REGEX.test(values.branch)) {
-      newErrors.branch = ['Nom de branche invalide'];
+      newErrors.branch = 'Nom de branche invalide';
     }
     if (!SHA_REGEX.test(values.commit_sha)) {
-      newErrors.commit_sha = ['SHA invalide (7-40 caractères hexadécimaux)'];
+      newErrors.commit_sha = 'SHA invalide (7-40 caractères hexadécimaux)';
     }
     return newErrors;
   };
@@ -40,7 +42,7 @@ export default function SubmitForm() {
 
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
-      setGlobalErrors(validationErrors);
+      setErrors(validationErrors);
       return;
     }
 
@@ -53,7 +55,12 @@ export default function SubmitForm() {
       navigate(`/submissions/${result.id}`);
     } catch (err: any) {
       if (err?.response?.data?.errors) {
-        setGlobalErrors(err.response.data.errors);
+        const apiErrors = err.response.data.errors;
+        const mapped: Record<string, string> = {};
+        for (const key in apiErrors) {
+          mapped[key] = Array.isArray(apiErrors[key]) ? apiErrors[key][0] : apiErrors[key];
+        }
+        setErrors(mapped);
       } else {
         setGlobalError(err?.response?.data?.message || 'Erreur lors de la soumission');
       }
@@ -76,7 +83,7 @@ export default function SubmitForm() {
             name="github_url"
             value={values.github_url}
             onChange={handleChange}
-            error={errors.github_url?.[0]}
+            error={errors.github_url}
             hint="Ex: https://github.com/username/repository"
             placeholder="https://github.com/..."
             required
@@ -87,7 +94,7 @@ export default function SubmitForm() {
             name="branch"
             value={values.branch}
             onChange={handleChange}
-            error={errors.branch?.[0]}
+            error={errors.branch}
             hint="La branche contenant votre travail"
             placeholder="main"
             required
@@ -98,7 +105,7 @@ export default function SubmitForm() {
             name="commit_sha"
             value={values.commit_sha}
             onChange={handleChange}
-            error={errors.commit_sha?.[0]}
+            error={errors.commit_sha}
             hint="Le hash du commit à évaluer (7-40 caractères)"
             placeholder="a1b2c3d..."
             required
