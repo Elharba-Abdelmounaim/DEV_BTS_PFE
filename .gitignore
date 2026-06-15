@@ -6,6 +6,8 @@
 *.swp
 *.swo
 
+actions-runner/
+
 # OS
 .DS_Store
 Thumbs.db

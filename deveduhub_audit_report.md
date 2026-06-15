@@ -276,7 +276,7 @@ Register → Login → Dashboard
 | Service | Image | Role |
 |---|---|---|
 | `nginx` | nginx:1.25-alpine | Reverse proxy, static assets, gzip |
-| `app` | php:8.2-fpm-alpine (multi-stage) | Laravel PHP-FPM |
+| `app` | php:8.3-fpm-alpine (multi-stage) | Laravel PHP-FPM |
 | `db` | postgres:15-alpine | Primary database, health-checked |
 | `redis` | redis:7-alpine | Queue driver + cache, maxmemory 256MB |
 | `grader` | Python FastAPI (custom) | Auto-grading microservice |
