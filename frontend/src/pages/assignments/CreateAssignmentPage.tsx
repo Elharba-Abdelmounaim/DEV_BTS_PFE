@@ -179,7 +179,7 @@ export default function CreateAssignmentPage() {
                       <option value="go">Go</option>
                     </select>
                   </div>
-                  <TestCaseBuilder testCases={testCases} onChange={setTestCases} />
+                  <TestCaseBuilder testCases={testCases} onChange={setTestCases} maxScore={Number(values.max_score)} />
                 </>
               )}
             </fieldset>
