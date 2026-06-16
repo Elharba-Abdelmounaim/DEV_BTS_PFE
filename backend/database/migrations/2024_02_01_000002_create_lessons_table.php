@@ -26,7 +26,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('lessons', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('gen_random_uuid()'));
+            $table->uuid('id')->primary();
             $table->foreignUuid('module_id')->constrained('course_modules')->cascadeOnDelete();
 
             // ── Identity ──────────────────────────────────────────────────────
