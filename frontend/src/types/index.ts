@@ -50,6 +50,9 @@ export interface Submission {
   student_id: string;
   github_url?: string;
   github_repo_url?: string;
+  github_branch?: string;
+  github_commit_sha?: string;
+  teacher_feedback?: string;
   branch?: string;
   commit_sha?: string;
   submission_status: 'pending' | 'queued' | 'grading' | 'graded' | 'failed';

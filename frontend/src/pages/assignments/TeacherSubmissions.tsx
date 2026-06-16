@@ -29,7 +29,7 @@ export default function TeacherSubmissions() {
       submissionsApi.byAssignment(assignmentId),
     ])
     setAssignment(a)
-    setSubmissions(s.data)
+    setSubmissions(s)
   }
 
   useEffect(() => {
