@@ -73,7 +73,6 @@ USER root
 EXPOSE 10000
 
 
-RUN php artisan config:cache || true
-
-
-CMD php artisan serve --host=0.0.0.0 --port=10000
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+CMD ["/entrypoint.sh"]
