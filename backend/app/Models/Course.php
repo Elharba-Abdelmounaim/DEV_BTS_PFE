@@ -7,15 +7,22 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Course extends Model
 {
-    use HasFactory, HasUuids;
+    use HasFactory, HasUuids, SoftDeletes;
 
     public $incrementing = false;
-    protected $keyType   = 'string';
+    protected $keyType = 'string';
 
+    /*
+    |--------------------------------------------------------------------------
+    | Mass Assignment
+    |--------------------------------------------------------------------------
+    */
     protected $fillable = [
         'instructor_id',
         'code',
@@ -28,16 +35,26 @@ class Course extends Model
         'is_active',
     ];
 
+    /*
+    |--------------------------------------------------------------------------
+    | Casts
+    |--------------------------------------------------------------------------
+    */
     protected $casts = [
         'is_active'     => 'boolean',
-        'academic_year' => 'integer',
-        'credits'       => 'integer',
-        'max_students'  => 'integer',
-        'created_at'    => 'datetime',
-        'updated_at'    => 'datetime',
+        'academic_year'  => 'integer',
+        'credits'        => 'integer',
+        'max_students'   => 'integer',
+        'created_at'     => 'datetime',
+        'updated_at'     => 'datetime',
+        'deleted_at'     => 'datetime',
     ];
 
-    // ── Relationships ─────────────────────────────────────────────────────
+    /*
+    |--------------------------------------------------------------------------
+    | Relationships
+    |--------------------------------------------------------------------------
+    */
 
     public function instructor(): BelongsTo
     {
@@ -54,25 +71,81 @@ class Course extends Model
         return $this->hasMany(Enrollment::class);
     }
 
-    /** Students enrolled in this course */
     public function students(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'enrollments', 'course_id', 'student_id')
-                    ->withPivot(['status', 'final_grade', 'enrollment_date'])
-                    ->withTimestamps();
+            ->withPivot(['status', 'final_grade', 'enrollment_date'])
+            ->withTimestamps();
     }
 
-    // ── Scopes ────────────────────────────────────────────────────────────
+    /*
+    |--------------------------------------------------------------------------
+    | LESSON SYSTEM (LMS CORE)
+    |--------------------------------------------------------------------------
+    */
+
+    public function modules(): HasMany
+    {
+        return $this->hasMany(CourseModule::class)
+            ->orderBy('order_index');
+    }
+
+    public function publishedModules(): HasMany
+    {
+        return $this->hasMany(CourseModule::class)
+            ->where('is_published', true)
+            ->orderBy('order_index');
+    }
+
+    public function lessons(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            Lesson::class,
+            CourseModule::class,
+            'course_id',
+            'module_id',
+            'id',
+            'id'
+        )->orderBy('lessons.order_index');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Scopes
+    |--------------------------------------------------------------------------
+    */
 
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────
+    /*
+    |--------------------------------------------------------------------------
+    | Business Logic
+    |--------------------------------------------------------------------------
+    */
 
     public function hasCapacity(): bool
     {
-        return $this->enrollments()->where('status', 'active')->count() < $this->max_students;
+        return $this->enrollments()
+            ->where('status', 'active')
+            ->count() < $this->max_students;
+    }
+
+    public function totalPublishedLessons(): int
+    {
+        return $this->lessons()
+            ->where('lessons.is_published', true)
+            ->count();
+    }
+
+    public function completedLessonsFor(string $studentId): int
+    {
+        return $this->lessons()
+            ->whereHas('completedBy', function ($q) use ($studentId) {
+                $q->where('student_id', $studentId);
+            })
+            ->count();
     }
 }

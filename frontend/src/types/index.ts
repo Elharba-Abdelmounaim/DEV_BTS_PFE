@@ -140,3 +140,61 @@ export interface ApiError {
   message: string;
   errors?: Record<string, string[]>;
 }
+
+export interface CourseModule {
+  id: string;
+  course_id: string;
+  title: string;
+  description?: string;
+  order_index: number;
+  is_published: boolean;
+  created_at: string;
+  updated_at: string;
+
+  lessons?: Lesson[];
+}
+
+export interface Lesson {
+  id: string;
+  module_id: string;
+  title: string;
+  excerpt?: string;
+
+  lesson_type: 'video' | 'reading' | 'quiz' | 'assignment';
+
+  body?: any; // TipTap JSON
+  body_html?: string;
+
+  video_url?: string;
+  video_type?: 'youtube' | 'vimeo' | 'upload';
+
+  files?: LessonFile[];
+
+  assignment_id?: string;
+
+  order_index: number;
+  is_published: boolean;
+  is_free_preview: boolean;
+
+  reading_time_minutes?: number;
+  duration_minutes?: number;
+
+  is_completed?: boolean;
+
+  created_at: string;
+  updated_at: string;
+}
+
+export interface LessonFile {
+  name: string;
+  url: string;
+  size?: number;
+  mime?: string;
+}
+
+export interface CourseProgress {
+  course_id: string;
+  total_lessons: number;
+  completed_lessons: number;
+  percent: number;
+}

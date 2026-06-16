@@ -1,0 +1,77 @@
+version: "3.9"
+
+# ── DevEduHub — Staging Environment ───────────────────────────────────────────
+#
+# Extends docker-compose.yml for staging:
+#   - Uses GHCR images (not local build)
+#   - Reduced resource limits vs production
+#   - Staging-specific env vars
+#   - No Mailpit — uses real SMTP with staging credentials
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.staging.yml up -d
+
+services:
+
+  app:
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/deveduhub-app:${TAG:-latest}
+    build: null   # don't build locally — use pre-built image
+    environment:
+      APP_ENV:   staging
+      APP_DEBUG: "false"
+      LOG_CHANNEL: stack
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+
+  nginx:
+    ports:
+      - "8080:80"
+
+  grader:
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/deveduhub-grader:${TAG:-latest}
+    build: null
+    environment:
+      LARAVEL_ORIGIN: http://nginx    # internal Docker network
+      LOG_LEVEL: INFO
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+
+  worker:
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/deveduhub-app:${TAG:-latest}
+    build: null
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+
+  notifier:
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/deveduhub-app:${TAG:-latest}
+    build: null
+
+  scheduler:
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/deveduhub-app:${TAG:-latest}
+    build: null
+
+  db:
+    # Staging uses a smaller shared_buffers config
+    command: >
+      postgres
+        -c shared_buffers=64MB
+        -c max_connections=50
+    ports: []   # don't expose DB port on staging
+
+  redis:
+    ports: []   # don't expose Redis port on staging
+    command: redis-server --maxmemory 128mb --maxmemory-policy allkeys-lru
+
+  # No Mailpit on staging — use real SMTP
+  mailpit:
+    profiles:
+      - never   # prevents mailpit from starting on staging

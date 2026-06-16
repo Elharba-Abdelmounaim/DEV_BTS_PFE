@@ -2,31 +2,25 @@
 
 namespace App\Providers;
 
-use Illuminate\Foundation\Support\Providers\AuthServiceProvider;
+use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\DB;
 
-class AppServiceProvider extends AuthServiceProvider
+class AppServiceProvider extends ServiceProvider
 {
     /**
-     * Policy mappings for the application.
+     * Register any application services.
      */
-    protected $policies = [
-        \App\Models\Course::class     => \App\Policies\CoursePolicy::class,
-        \App\Models\Assignment::class => \App\Policies\AssignmentPolicy::class,
-    ];
-
     public function register(): void
     {
         //
     }
 
+    /**
+     * Bootstrap any application services.
+     */
     public function boot(): void
     {
-        // DB::statement('CREATE EXTENSION IF NOT EXISTS "pgcrypto"');
-        // Register all policies declared in $policies
-        $this->registerPolicies();
-
         // Enable pgcrypto so gen_random_uuid() works in migrations
-       // DB::statement('CREATE EXTENSION IF NOT EXISTS "pgcrypto"');
+        // DB::statement('CREATE EXTENSION IF NOT EXISTS "pgcrypto"');
     }
 }

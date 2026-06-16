@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
@@ -13,24 +15,42 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, HasUuids, Notifiable;
 
-    // ── No auto-increment — UUIDs from DB ────────────────────────────────
+    /*
+    |--------------------------------------------------------------------------
+    | UUID CONFIG
+    |--------------------------------------------------------------------------
+    */
     public $incrementing = false;
-    protected $keyType   = 'string';
+    protected $keyType = 'string';
 
-    // ── Password field name matches ERD ──────────────────────────────────
-    protected $authPasswordName = 'password_hash';
+    /*
+    |--------------------------------------------------------------------------
+    | AUTH CONFIG (custom password column)
+    |--------------------------------------------------------------------------
+    */
+    
 
+    public function getAuthPassword(): string
+    {
+        return $this->password_hash;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | MASS ASSIGNMENT
+    |--------------------------------------------------------------------------
+    */
     protected $fillable = [
         'email',
         'password_hash',
         'first_name',
         'last_name',
-        'role',                      // 'teacher' | 'student'
+        'role',
         'avatar_url',
         'phone',
         'bio',
         'github_username',
-        'github_token_encrypted',    // Phase 2
+        'github_token_encrypted',
         'is_active',
         'is_verified',
         'email_verification_token',
@@ -39,6 +59,11 @@ class User extends Authenticatable
         'last_login',
     ];
 
+    /*
+    |--------------------------------------------------------------------------
+    | HIDDEN FIELDS (security)
+    |--------------------------------------------------------------------------
+    */
     protected $hidden = [
         'password_hash',
         'github_token_encrypted',
@@ -46,16 +71,35 @@ class User extends Authenticatable
         'password_reset_token',
     ];
 
+    /*
+    |--------------------------------------------------------------------------
+    | CASTS
+    |--------------------------------------------------------------------------
+    */
     protected $casts = [
-        'is_active'               => 'boolean',
-        'is_verified'             => 'boolean',
-        'password_reset_expires'  => 'datetime',
-        'last_login'              => 'datetime',
-        'created_at'              => 'datetime',
-        'updated_at'              => 'datetime',
+        'is_active'              => 'boolean',
+        'is_verified'            => 'boolean',
+        'last_login'             => 'datetime',
+        'password_reset_expires' => 'datetime',
+        'created_at'             => 'datetime',
+        'updated_at'             => 'datetime',
     ];
 
-    // ── Role helpers ─────────────────────────────────────────────────────
+    /*
+    |--------------------------------------------------------------------------
+    | ACCESSORS
+    |--------------------------------------------------------------------------
+    */
+    public function getFullNameAttribute(): string
+    {
+        return "{$this->first_name} {$this->last_name}";
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | ROLE HELPERS
+    |--------------------------------------------------------------------------
+    */
     public function isTeacher(): bool
     {
         return $this->role === 'teacher';
@@ -66,37 +110,58 @@ class User extends Authenticatable
         return $this->role === 'student';
     }
 
-    // ── Relationships ─────────────────────────────────────────────────────
+    /*
+    |--------------------------------------------------------------------------
+    | RELATIONSHIPS
+    |--------------------------------------------------------------------------
+    */
 
-    /** Courses this teacher created */
+    // Teacher → Courses
     public function taughtCourses(): HasMany
     {
         return $this->hasMany(Course::class, 'instructor_id');
     }
 
-    /** Enrollments this student has */
+    // Student → Enrollments
     public function enrollments(): HasMany
     {
         return $this->hasMany(Enrollment::class, 'student_id');
     }
 
-    /** Courses this student is enrolled in (via enrollments) */
-    public function enrolledCourses()
+    // Student → Courses (via enrollments)
+    public function enrolledCourses(): HasManyThrough
     {
-        return $this->belongsToMany(Course::class, 'enrollments', 'student_id', 'course_id')
-                    ->withPivot(['status', 'final_grade', 'enrollment_date'])
-                    ->withTimestamps();
+        return $this->hasManyThrough(
+            Course::class,
+            Enrollment::class,
+            'student_id',
+            'id',
+            'id',
+            'course_id'
+        );
     }
 
-    /** All submissions by this student */
+    // Student → Submissions
     public function submissions(): HasMany
     {
         return $this->hasMany(Submission::class, 'student_id');
     }
 
-    // ── Computed ─────────────────────────────────────────────────────────
-    public function getFullNameAttribute(): string
+    // Student → Portfolio (1-1)
+    public function portfolio(): HasOne
     {
-        return "{$this->first_name} {$this->last_name}";
+        return $this->hasOne(Portfolio::class, 'student_id');
+    }
+
+    // Student → Projects
+    public function projects(): HasMany
+    {
+        return $this->hasMany(Project::class, 'student_id');
+    }
+
+    // GitHub Webhooks
+    public function githubWebhooks(): HasMany
+    {
+        return $this->hasMany(GitHubWebhook::class);
     }
 }

@@ -1,4 +1,5 @@
 import axios from 'axios';
+baseURL: "/api/v1"
 
 const client = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '/api',
