@@ -15,15 +15,11 @@ return [
     |
     */
 
-    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+    'paths' => ['api/*', 'sanctum/csrf-cookie', 'login', 'logout', 'register'],
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => [
-        'http://localhost:3000',
-        'http://localhost:5173',
-        env('FRONTEND_URL', 'https://dev-bts-pfe.vercel.app'),
-    ],
+    'allowed_origins' => explode(',', env('CORS_ALLOWED_ORIGINS', 'https://dev-bts-pfe-abdelmounaims-projects-af44edc8.vercel.app,https://dev-bts-pfe-git-main-abdelmounaims-projects-af44edc8.vercel.app,https://dev-bts-pfe-cz6hs7vrq-abdelmounaims-projects-af44edc8.vercel.app,https://dev-bts-pfe.vercel.app,http://localhost:5173,http://localhost:3000')),
 
     'allowed_origins_patterns' => [],
 
