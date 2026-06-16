@@ -61,6 +61,7 @@ WORKDIR /var/www/html
 
 # Vendor from composer stage
 COPY --from=deps /app/vendor ./vendor
+COPY --from=deps /usr/bin/composer /usr/bin/composer
 
 # App code
 COPY . .

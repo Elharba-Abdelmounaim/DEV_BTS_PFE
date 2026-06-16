@@ -228,6 +228,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('enrollments/{enrollment}', [EnrollmentController::class, 'destroy']);
 
     Route::get('notifications', [NotificationController::class, 'index']);
+    Route::get('notifications/unread', [NotificationController::class, 'unread']);
+    Route::post('notifications/{id}/read', [NotificationController::class, 'markRead']);
+    Route::post('notifications/read-all', [NotificationController::class, 'markAllRead']);
 
     Route::get('portfolio', [PortfolioController::class, 'show']);
 });
