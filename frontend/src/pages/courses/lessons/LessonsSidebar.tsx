@@ -1,5 +1,5 @@
 import styles from './LessonsSidebar.module.css'
-import type { CourseModule, LessonSummary } from '@/types/lessons'
+import type { CourseModule, LessonSummary, LessonType } from '../../../types'
 
 interface Props {
   modules:          CourseModule[]
@@ -10,11 +10,11 @@ interface Props {
   onAddLesson?:     (moduleId: string) => void
 }
 
-const LESSON_TYPE_ICON: Record<string, string> = {
+const LESSON_TYPE_ICON: Record<LessonType, string> = {
   video:   '▶',
   reading: '📄',
   quiz:    '✏️',
-  lab:     '⚗️',
+  assignment: '⚗️',
 }
 
 function formatDuration(lesson: LessonSummary): string | null {
@@ -57,9 +57,9 @@ export default function LessonsSidebar({
   return (
     <aside className={styles.sidebar}>
       <div className={styles.moduleList}>
-        {modules.map(module => {
-          const lessons = module.lessons ?? []
-          const completedIds = module.completed_lesson_ids ?? []
+        {modules.map((module: CourseModule) => {
+          const lessons: LessonSummary[] = (module as any).lessons ?? []
+          const completedIds: string[] = (module as any).completed_lesson_ids ?? []
           const doneCount = completedIds.length
           const allDone = lessons.length > 0 && doneCount === lessons.length
 
@@ -80,7 +80,7 @@ export default function LessonsSidebar({
 
               {/* Lesson rows */}
               <ul className={styles.lessonList}>
-                {lessons.map(lesson => {
+                {lessons.map((lesson: LessonSummary) => {
                   const isActive    = lesson.id === activeLessonId
                   const isCompleted = completedIds.includes(lesson.id) || lesson.is_completed
                   const duration    = formatDuration(lesson)

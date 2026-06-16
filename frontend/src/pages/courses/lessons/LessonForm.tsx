@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react'
-import { lessonsApi, modulesApi } from '@/api/lessons'
+import { useState } from 'react'
+import { lessonsApi } from '@/api/lessons'
 import { useForm } from '@/hooks/useForm'
 import Input from '@/components/ui/Input'
 import TipTapEditor from './TipTapEditor'
-import type { Lesson, LessonType, CourseModule } from '@/types/lessons'
+import type { Lesson, LessonType, CourseModule, LessonFile } from '../../../types'
 import styles from './LessonForm.module.css'
 
 interface Props {
@@ -19,7 +19,7 @@ const TYPE_OPTIONS: { value: LessonType; label: string; icon: string }[] = [
   { value: 'reading', label: 'Reading',  icon: '📄' },
   { value: 'video',   label: 'Video',    icon: '▶' },
   { value: 'quiz',    label: 'Quiz',     icon: '✏️' },
-  { value: 'lab',     label: 'Lab',      icon: '⚗️' },
+  { value: 'assignment', label: 'Lab',   icon: '⚗️' },
 ]
 
 export default function LessonForm({ courseId, module, lesson, onSuccess, onCancel }: Props) {
@@ -27,7 +27,7 @@ export default function LessonForm({ courseId, module, lesson, onSuccess, onCanc
 
   const [body,        setBody]        = useState<Record<string, unknown> | null>(lesson?.body ?? null)
   const [bodyHtml,    setBodyHtml]    = useState<string>(lesson?.body_html ?? '')
-  const [files,       setFiles]       = useState<Lesson['files']>(lesson?.files ?? [])
+  const [files,       setFiles]       = useState<LessonFile[]>(lesson?.files ?? [])
   const [newFileUrl,  setNewFileUrl]  = useState('')
   const [newFileName, setNewFileName] = useState('')
 
@@ -50,7 +50,7 @@ export default function LessonForm({ courseId, module, lesson, onSuccess, onCanc
         video_url:        lesson?.video_url        ?? '',
         video_type:       lesson?.video_type       ?? '',
         duration_minutes: lesson?.duration_minutes ? String(lesson.duration_minutes) : '',
-        assignment_id:    lesson?.assignment?.id   ?? '',
+        assignment_id:    lesson?.assignment_id    ?? '',
         is_published:     String(lesson?.is_published    ?? false),
         is_free_preview:  String(lesson?.is_free_preview ?? false),
       },
@@ -79,7 +79,7 @@ export default function LessonForm({ courseId, module, lesson, onSuccess, onCanc
           assignment_id:    vals.assignment_id || undefined,
           is_published:     vals.is_published === 'true',
           is_free_preview:  vals.is_free_preview === 'true',
-        } as any
+        }
 
         let saved: Lesson
         if (isEdit && lesson) {
@@ -175,8 +175,8 @@ export default function LessonForm({ courseId, module, lesson, onSuccess, onCanc
               label="Duration (minutes)"
               name="duration_minutes"
               type="number"
-              min="1"
-              max="600"
+              min={1}
+              max={600}
               placeholder="e.g. 12"
               value={values.duration_minutes}
               onChange={handleChange}

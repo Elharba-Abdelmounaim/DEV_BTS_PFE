@@ -20,7 +20,7 @@ export default function ManualGradeForm({
   onSave,
 }: ManualGradeFormProps) {
   const [score, setScore] = useState(submission.final_score ?? submission.score ?? 0);
-  const [feedback, setFeedback] = useState(submission.feedback ?? '');
+  const [feedback, setFeedback] = useState(submission.teacher_feedback ?? submission.feedback ?? '');
   const [loading, setLoading] = useState(false);
 
   const percentage = (score / maxScore) * 100;
@@ -35,10 +35,12 @@ export default function ManualGradeForm({
       } else {
         const updated = await gradeSubmission(submission.id, {
           final_score: score,
-          feedback,
+          teacher_feedback: feedback,
         });
         onSuccess?.(updated);
       }
+    } catch (err: any) {
+      alert(err?.response?.data?.message || 'Erreur lors de l\'enregistrement');
     } finally {
       setLoading(false);
     }

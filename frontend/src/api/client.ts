@@ -1,8 +1,7 @@
 import axios from 'axios';
-baseURL: "/api/v1"
 
 const client = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '/api',
+  baseURL: import.meta.env.VITE_API_URL || '/api/v1',
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
@@ -39,4 +38,5 @@ export function extractMessage(error: any): string {
   return error?.response?.data?.message || 'Une erreur est survenue';
 }
 
+export const api = client;
 export default client;

@@ -64,14 +64,14 @@ export default function SubmissionList() {
               to={`/submissions/${sub.id}`}
               className={styles.tableRow}
             >
-              <span>{new Date(sub.created_at).toLocaleDateString('fr-FR')}</span>
+              <span>{new Date(sub.submitted_at || sub.created_at).toLocaleDateString('fr-FR')}</span>
               <span className={styles.assignment}>
-                {(sub as any).assignment?.title || sub.assignment_id.slice(0, 8)}
+                {sub.assignment?.title || sub.assignment_id.slice(0, 8)}
               </span>
               <StatusBadge status={sub.submission_status} />
               <span className={styles.score}>
-                {sub.score !== null && sub.score !== undefined
-                  ? `${sub.score}/100`
+                {sub.final_score !== null && sub.final_score !== undefined
+                  ? `${sub.final_score}/100`
                   : '—'}
               </span>
             </Link>

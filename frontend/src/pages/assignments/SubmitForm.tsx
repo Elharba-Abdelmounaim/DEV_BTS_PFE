@@ -5,7 +5,7 @@ import { submitAssignment } from '../../api/assignments';
 import Input from '../../components/ui/Input';
 import styles from './SubmitForm.module.css';
 
-const GITHUB_URL_REGEX = /^https?:\/\/(www\.)?github\.com\/[\w-]+\/[\w.-]+\/?$/i;
+const GITHUB_URL_REGEX = /^https?:\/\/(github|gitlab)\.com\/[\w-]+\/[\w.-]+\/?$/i;
 const BRANCH_REGEX = /^[\w.\-\/]+$/;
 const SHA_REGEX = /^[a-f0-9]{7,40}$/i;
 
@@ -16,22 +16,22 @@ export default function SubmitForm() {
 
   const { values, errors, loading, handleChange, setErrors } = useForm({
     initialValues: {
-      github_url: '',
-      branch: 'main',
-      commit_sha: '',
+      github_repo_url: '',
+      github_branch: 'main',
+      github_commit_sha: '',
     }
   });
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
-    if (!GITHUB_URL_REGEX.test(values.github_url)) {
-      newErrors.github_url = 'URL GitHub invalide (ex: https://github.com/user/repo)';
+    if (!GITHUB_URL_REGEX.test(values.github_repo_url)) {
+      newErrors.github_repo_url = 'URL GitHub/GitLab invalide (ex: https://github.com/user/repo)';
     }
-    if (!BRANCH_REGEX.test(values.branch)) {
-      newErrors.branch = 'Nom de branche invalide';
+    if (!BRANCH_REGEX.test(values.github_branch)) {
+      newErrors.github_branch = 'Nom de branche invalide';
     }
-    if (!SHA_REGEX.test(values.commit_sha)) {
-      newErrors.commit_sha = 'SHA invalide (7-40 caractères hexadécimaux)';
+    if (values.github_commit_sha && !SHA_REGEX.test(values.github_commit_sha)) {
+      newErrors.github_commit_sha = 'SHA invalide (7-40 caractères hexadécimaux)';
     }
     return newErrors;
   };
@@ -48,9 +48,9 @@ export default function SubmitForm() {
 
     try {
       const result = await submitAssignment(assignmentId!, {
-        github_url: values.github_url,
-        branch: values.branch,
-        commit_sha: values.commit_sha,
+        github_repo_url: values.github_repo_url,
+        github_branch: values.github_branch,
+        github_commit_sha: values.github_commit_sha,
       });
       navigate(`/submissions/${result.id}`);
     } catch (err: any) {
@@ -72,18 +72,18 @@ export default function SubmitForm() {
       <div className={styles.card}>
         <h1>Soumettre un devoir</h1>
         <p className={styles.subtitle}>
-          Entrez les informations de votre commit GitHub
+          Entrez les informations de votre dépôt Git
         </p>
 
         <form onSubmit={handleSubmit} className={styles.form}>
           {globalError && <div className={styles.globalError}>{globalError}</div>}
 
           <Input
-            label="URL du dépôt GitHub"
-            name="github_url"
-            value={values.github_url}
+            label="URL du dépôt (GitHub/GitLab)"
+            name="github_repo_url"
+            value={values.github_repo_url}
             onChange={handleChange}
-            error={errors.github_url}
+            error={errors.github_repo_url}
             hint="Ex: https://github.com/username/repository"
             placeholder="https://github.com/..."
             required
@@ -91,24 +91,23 @@ export default function SubmitForm() {
 
           <Input
             label="Branche"
-            name="branch"
-            value={values.branch}
+            name="github_branch"
+            value={values.github_branch}
             onChange={handleChange}
-            error={errors.branch}
+            error={errors.github_branch}
             hint="La branche contenant votre travail"
             placeholder="main"
             required
           />
 
           <Input
-            label="SHA du commit"
-            name="commit_sha"
-            value={values.commit_sha}
+            label="SHA du commit (Optionnel)"
+            name="github_commit_sha"
+            value={values.github_commit_sha}
             onChange={handleChange}
-            error={errors.commit_sha}
-            hint="Le hash du commit à évaluer (7-40 caractères)"
+            error={errors.github_commit_sha}
+            hint="Le hash du commit (40 caractères). Laisse vide pour le dernier commit."
             placeholder="a1b2c3d..."
-            required
           />
 
           <div className={styles.actions}>

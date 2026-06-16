@@ -81,33 +81,33 @@ export default function SubmissionStatus() {
           </div>
           <div className={styles.infoRow}>
             <span className={styles.infoLabel}>Dépôt:</span>
-            <a href={submission.github_url} target="_blank" rel="noopener noreferrer">
-              {submission.github_url}
+            <a href={submission.github_repo_url} target="_blank" rel="noopener noreferrer">
+              {submission.github_repo_url}
             </a>
           </div>
           <div className={styles.infoRow}>
             <span className={styles.infoLabel}>Branche:</span>
-            <code>{submission.branch}</code>
+            <code>{submission.github_branch || 'main'}</code>
           </div>
           <div className={styles.infoRow}>
             <span className={styles.infoLabel}>Commit:</span>
-            <code>{submission.commit_sha?.slice(0, 7)}</code>
+            <code>{submission.github_commit_sha?.slice(0, 7) || 'latest'}</code>
           </div>
           <div className={styles.infoRow}>
             <span className={styles.infoLabel}>Soumis le:</span>
-            <span>{new Date(submission.created_at).toLocaleString('fr-FR')}</span>
+            <span>{submission.submitted_at ? new Date(submission.submitted_at).toLocaleString('fr-FR') : '—'}</span>
           </div>
         </div>
 
-        {submission.submission_status === 'graded' && (
+        {(submission.submission_status === 'graded' || submission.final_score !== null) && (
           <div className={styles.result}>
             <div className={styles.score}>
-              🏆 {submission.score} / {(submission as any).max_score || 100}
+              🏆 {submission.final_score ?? submission.auto_grade_score ?? 0} / {submission.assignment?.max_score || 100}
             </div>
-            {submission.feedback && (
+            {submission.teacher_feedback && (
               <div className={styles.feedback}>
                 <h3>Feedback</h3>
-                <p>{submission.feedback}</p>
+                <p>{submission.teacher_feedback}</p>
               </div>
             )}
           </div>
@@ -116,7 +116,7 @@ export default function SubmissionStatus() {
         {submission.submission_status === 'failed' && (
           <div className={styles.failed}>
             <h3>❌ Échec de la correction</h3>
-            {submission.feedback && <p>{submission.feedback}</p>}
+            {submission.teacher_feedback && <p>{submission.teacher_feedback}</p>}
           </div>
         )}
 

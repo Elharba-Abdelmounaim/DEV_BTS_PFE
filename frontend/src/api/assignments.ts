@@ -24,11 +24,14 @@ export async function getSubmission(id: string): Promise<Submission> {
 
 export async function submitAssignment(
   assignmentId: string,
-  payload: { github_url: string; branch: string; commit_sha: string }
+  payload: { github_repo_url: string; github_branch: string; github_commit_sha: string }
 ): Promise<Submission> {
   const { data } = await client.post<{ data: Submission }>(
-    `/assignments/${assignmentId}/submit`,
-    payload
+    '/submissions',
+    {
+      assignment_id: assignmentId,
+      ...payload
+    }
   );
   return data.data;
 }
@@ -40,7 +43,7 @@ export async function getAssignmentSubmissions(assignmentId: string): Promise<Su
 
 export async function gradeSubmission(
   id: string,
-  payload: { final_score: number; feedback: string }
+  payload: { final_score: number; teacher_feedback: string }
 ): Promise<Submission> {
   const { data } = await client.patch<{ data: Submission }>(`/submissions/${id}`, payload);
   return data.data;
@@ -59,10 +62,12 @@ export async function markAllAsRead(): Promise<void> {
   await client.post('/notifications/read-all');
 }
 
-// ── Object-based APIs (للـ Claude original code) ────────────────────────────────
+// ── Object-based APIs (للـ CourseDetail.tsx و غيره) ─────────────────────────────
 export const assignmentsApi = {
   list: (courseId?: string) =>
-    client.get<{ data: Assignment[] }>(courseId ? `/courses/${courseId}/assignments` : '/assignments').then(r => r.data),
+    client.get<{ data: Assignment[] }>(courseId ? `/courses/${courseId}/assignments` : '/assignments').then(r => r.data.data),
+  byCourse: (courseId: string) =>
+    client.get<{ data: Assignment[] }>(`/courses/${courseId}/assignments`).then(r => r.data.data),
   get: (id: string) =>
     client.get<{ data: Assignment }>(`/assignments/${id}`).then(r => r.data.data),
   create: (payload: any) =>
@@ -75,13 +80,19 @@ export const assignmentsApi = {
 
 export const submissionsApi = {
   list: () =>
-    client.get<{ data: Submission[] }>('/submissions/my').then(r => r.data),
+    client.get<{ data: Submission[] }>('/submissions/my').then(r => r.data.data),
   byAssignment: (assignmentId: string) =>
-    client.get<{ data: Submission[] }>(`/assignments/${assignmentId}/submissions`).then(r => r.data),
+    client.get<{ data: Submission[] }>(`/assignments/${assignmentId}/submissions`).then(r => r.data.data),
   get: (id: string) =>
     client.get<{ data: Submission }>(`/submissions/${id}`).then(r => r.data.data),
   submit: (assignmentId: string, payload: any) =>
-    client.post<{ data: Submission }>(`/assignments/${assignmentId}/submit`, payload).then(r => r.data.data),
-  grade: (id: string, payload: { final_score: number; feedback: string }) =>
+    client.post<{ data: Submission }>('/submissions', {
+      assignment_id: assignmentId,
+      github_repo_url: payload.github_url || payload.github_repo_url,
+      github_branch: payload.branch || payload.github_branch,
+      github_commit_sha: payload.commit_sha || payload.github_commit_sha,
+      student_notes: payload.student_notes
+    }).then(r => r.data.data),
+  grade: (id: string, payload: { final_score: number; teacher_feedback: string }) =>
     client.patch<{ data: Submission }>(`/submissions/${id}`, payload).then(r => r.data.data),
 };

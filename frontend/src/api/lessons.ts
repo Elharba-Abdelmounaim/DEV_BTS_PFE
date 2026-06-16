@@ -4,7 +4,7 @@ import type {
   CourseProgress,
   Lesson,
   LessonSummary,
-} from '@/types/lessons'
+} from '../types'
 
 // ── Modules ───────────────────────────────────────────────────────────────────
 

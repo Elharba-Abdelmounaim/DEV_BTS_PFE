@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useEditor, EditorContent } from '@tiptap/react'
+import { useEditor, EditorContent, Editor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Link from '@tiptap/extension-link'
 import Image from '@tiptap/extension-image'
@@ -14,13 +14,6 @@ interface Props {
   onChange:       (json: Record<string, unknown>, html: string) => void
   placeholder?:   string
 }
-
-/*
- * Installation (run once):
- *   npm install @tiptap/react @tiptap/starter-kit @tiptap/extension-link
- *               @tiptap/extension-image @tiptap/extension-code-block-lowlight
- *               lowlight
- */
 
 function ToolbarButton({
   onClick, active, disabled, title, children,
@@ -44,7 +37,7 @@ function ToolbarButton({
   )
 }
 
-export default function TipTapEditor({ initialContent, onChange, placeholder }: Props) {
+export default function TipTapEditor({ initialContent, onChange }: Props) {
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -55,7 +48,7 @@ export default function TipTapEditor({ initialContent, onChange, placeholder }: 
       CodeBlockLowlight.configure({ lowlight }),
     ],
     content: initialContent ?? '',
-    onUpdate: ({ editor }) => {
+    onUpdate: ({ editor }: { editor: Editor }) => {
       onChange(editor.getJSON() as Record<string, unknown>, editor.getHTML())
     },
     editorProps: {
@@ -70,7 +63,7 @@ export default function TipTapEditor({ initialContent, onChange, placeholder }: 
     if (editor && initialContent && !editor.isFocused) {
       editor.commands.setContent(initialContent)
     }
-  }, [initialContent])
+  }, [editor, initialContent])
 
   if (!editor) return <div className={styles.loading}>Loading editor…</div>
 

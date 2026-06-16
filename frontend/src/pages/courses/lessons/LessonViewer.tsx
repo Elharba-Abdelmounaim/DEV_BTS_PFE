@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { lessonsApi } from '@/api/lessons'
-import type { Lesson, CourseProgress } from '@/types/lessons'
+import type { Lesson, CourseProgress, LessonFile } from '../../../types'
 import styles from './LessonViewer.module.css'
 
 interface Props {
@@ -57,7 +57,7 @@ function VideoPlayer({ url, type }: { url: string; type: string | null }) {
 
 // ── File download list ────────────────────────────────────────────────────────
 
-function FileList({ files }: { files: Lesson['files'] }) {
+function FileList({ files }: { files: LessonFile[] | undefined }) {
   if (!files || files.length === 0) return null
 
   const icon = (mime?: string) => {
@@ -80,7 +80,7 @@ function FileList({ files }: { files: Lesson['files'] }) {
     <div className={styles.files}>
       <h3 className={styles.filesTitle}>Downloads</h3>
       <ul className={styles.fileList}>
-        {files.map((f, i) => (
+        {files.map((f: LessonFile, i: number) => (
           <li key={i}>
             <a href={f.url} download className={styles.fileRow} target="_blank" rel="noreferrer">
               <span className={styles.fileIcon}>{icon(f.mime_type)}</span>
@@ -103,7 +103,7 @@ function FileList({ files }: { files: Lesson['files'] }) {
 // ── Main viewer ───────────────────────────────────────────────────────────────
 
 export default function LessonViewer({
-  lesson, courseId, isTeacher, progress, onComplete, onEdit, onNext, onPrev,
+  lesson, courseId, isTeacher, onComplete, onEdit, onNext, onPrev,
 }: Props) {
   const [completing, setCompleting] = useState(false)
   const [completed,  setCompleted]  = useState(lesson.is_completed ?? false)
@@ -128,7 +128,7 @@ export default function LessonViewer({
   }
 
   const typeLabel: Record<string, string> = {
-    video: '▶ Video', reading: '📄 Reading', quiz: '✏️ Quiz', lab: '⚗️ Lab',
+    video: '▶ Video', reading: '📄 Reading', quiz: '✏️ Quiz', assignment: '⚗️ Lab',
   }
 
   return (
@@ -160,7 +160,7 @@ export default function LessonViewer({
 
       {/* Video */}
       {lesson.video_url && (
-        <VideoPlayer url={lesson.video_url} type={lesson.video_type} />
+        <VideoPlayer url={lesson.video_url} type={lesson.video_type || null} />
       )}
 
       {/* Rich text body */}

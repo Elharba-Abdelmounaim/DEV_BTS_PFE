@@ -1,11 +1,11 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useAuth } from '@/context/AuthContext'
 import { modulesApi, lessonsApi } from '@/api/lessons'
-import type { CourseModule, CourseProgress, Lesson, LessonSummary } from '@/types/lessons'
+import type { CourseModule, CourseProgress as CourseProgressType, Lesson, LessonSummary } from '../../../types'
+import CourseProgressComponent from '@/components/layout/CourseProgress'
 import LessonsSidebar from './LessonsSidebar'
 import LessonViewer   from './LessonViewer'
 import LessonForm     from './LessonForm'
-import CourseProgress from './CourseProgress'
 import styles from './CourseContentTab.module.css'
 
 interface Props {
@@ -13,10 +13,10 @@ interface Props {
 }
 
 export default function CourseContentTab({ courseId }: Props) {
-  const { user, isTeacher } = useAuth()
+  const { isTeacher } = useAuth()
 
   const [modules,        setModules]        = useState<CourseModule[]>([])
-  const [progress,       setProgress]       = useState<CourseProgress | null>(null)
+  const [progress,       setProgress]       = useState<CourseProgressType | null>(null)
   const [activeLesson,   setActiveLesson]   = useState<Lesson | null>(null)
   const [activeModule,   setActiveModule]   = useState<CourseModule | null>(null)
   const [loadingLesson,  setLoadingLesson]  = useState(false)
@@ -40,7 +40,7 @@ export default function CourseContentTab({ courseId }: Props) {
         // Auto-open first available lesson
         if (!isTeacher && mods.length > 0) {
           const firstModule  = mods[0]
-          const firstLesson  = firstModule.lessons?.[0]
+          const firstLesson  = (firstModule as any).lessons?.[0]
           if (firstLesson) {
             handleSelectLesson(firstLesson, firstModule)
           }
@@ -74,29 +74,29 @@ export default function CourseContentTab({ courseId }: Props) {
   // ── Progress update after completing a lesson ────────────────────────────────
   const handleComplete = (result: { is_completed: boolean; completed_count: number; total_lessons: number }) => {
     // Update sidebar completion state
-    setModules(prev =>
+    setModules((prev: CourseModule[]) =>
       prev.map(mod => {
         if (!activeLesson || !activeLesson.module_id || mod.id !== activeLesson.module_id) return mod
-        const completedIds = mod.completed_lesson_ids ?? []
+        const completedIds = (mod as any).completed_lesson_ids ?? []
         const newIds = result.is_completed
           ? [...new Set([...completedIds, activeLesson.id])]
-          : completedIds.filter(id => id !== activeLesson.id)
+          : completedIds.filter((id: string) => id !== activeLesson.id)
         return { ...mod, completed_lesson_ids: newIds }
       })
     )
 
     // Update progress bar
-    setProgress(prev => prev
-      ? { ...prev, completed_count: result.completed_count, percentage: Math.round((result.completed_count / result.total_lessons) * 100) }
+    setProgress((prev: CourseProgressType | null) => prev
+      ? { ...prev, completed_lessons: result.completed_count, percent: Math.round((result.completed_count / result.total_lessons) * 100) }
       : null
     )
 
     // Update active lesson is_completed flag
-    setActiveLesson(prev => prev ? { ...prev, is_completed: result.is_completed } : null)
+    setActiveLesson((prev: Lesson | null) => prev ? { ...prev, is_completed: result.is_completed } : null)
   }
 
   // ── Navigation: prev/next lesson ────────────────────────────────────────────
-  const allLessons = modules.flatMap(m => (m.lessons ?? []).map(l => ({ lesson: l, module: m })))
+  const allLessons = modules.flatMap(m => ((m as any).lessons ?? []).map((l: LessonSummary) => ({ lesson: l, module: m })))
   const currentIdx = activeLesson
     ? allLessons.findIndex(x => x.lesson.id === activeLesson.id)
     : -1
@@ -154,10 +154,10 @@ export default function CourseContentTab({ courseId }: Props) {
     <div className={styles.root}>
       {/* Progress bar (student only) */}
       {!isTeacher && progress && progress.total_lessons > 0 && (
-        <CourseProgress
-          completed={progress.completed_count}
+        <CourseProgressComponent
+          completed={progress.completed_lessons}
           total={progress.total_lessons}
-          pct={progress.percentage}
+          pct={progress.percent}
         />
       )}
 

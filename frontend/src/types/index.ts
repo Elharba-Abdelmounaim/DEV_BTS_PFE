@@ -154,13 +154,15 @@ export interface CourseModule {
   lessons?: Lesson[];
 }
 
+export type LessonType = 'video' | 'reading' | 'quiz' | 'assignment';
+
 export interface Lesson {
   id: string;
   module_id: string;
   title: string;
   excerpt?: string;
 
-  lesson_type: 'video' | 'reading' | 'quiz' | 'assignment';
+  lesson_type: LessonType;
 
   body?: any; // TipTap JSON
   body_html?: string;
@@ -171,6 +173,7 @@ export interface Lesson {
   files?: LessonFile[];
 
   assignment_id?: string;
+  assignment?: Assignment;
 
   order_index: number;
   is_published: boolean;
@@ -185,11 +188,24 @@ export interface Lesson {
   updated_at: string;
 }
 
+export interface LessonSummary {
+  id: string;
+  module_id: string;
+  title: string;
+  lesson_type: LessonType;
+  order_index: number;
+  is_published: boolean;
+  is_completed?: boolean;
+  is_free_preview?: boolean;
+  duration_minutes?: number;
+  reading_time_minutes?: number;
+}
+
 export interface LessonFile {
   name: string;
   url: string;
   size?: number;
-  mime?: string;
+  mime_type?: string;
 }
 
 export interface CourseProgress {
