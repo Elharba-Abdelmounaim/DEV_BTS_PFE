@@ -11,8 +11,7 @@ return new class extends Migration
     {
         // ── portfolios ────────────────────────────────────────────────────────
         Schema::create('portfolios', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('gen_random_uuid()'));
-            $table->foreignUuid('student_id')->constrained('users')->cascadeOnDelete();
+            $table->uuid('id')->primary();            $table->foreignUuid('student_id')->constrained('users')->cascadeOnDelete();
             $table->string('portfolio_url')->nullable();
             $table->string('custom_domain')->nullable()->unique();
             $table->string('theme')->default('default');
@@ -29,7 +28,7 @@ return new class extends Migration
 
         // ── projects ──────────────────────────────────────────────────────────
         Schema::create('projects', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('gen_random_uuid()'));
+            $table->uuid('id')->primary();
             $table->foreignUuid('student_id')->constrained('users')->cascadeOnDelete();
             $table->string('title');
             $table->text('description')->nullable();
@@ -48,7 +47,7 @@ return new class extends Migration
 
         // ── deployment_configs ────────────────────────────────────────────────
         Schema::create('deployment_configs', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('gen_random_uuid()'));
+            $table->uuid('id')->primary();
             $table->foreignUuid('project_id')->constrained('projects')->cascadeOnDelete();
             $table->string('platform');
             $table->string('platform_project_id')->nullable();
@@ -61,7 +60,7 @@ return new class extends Migration
 
         // ── github_webhooks ───────────────────────────────────────────────────
         Schema::create('github_webhooks', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('gen_random_uuid()'));
+            $table->uuid('id')->primary();
             $table->foreignUuid('user_id')->constrained('users')->cascadeOnDelete();
             $table->string('repository_full_name');
             $table->string('webhook_id')->nullable();
@@ -74,7 +73,7 @@ return new class extends Migration
 
         // ── activity_logs ─────────────────────────────────────────────────────
         Schema::create('activity_logs', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('gen_random_uuid()'));
+            $table->uuid('id')->primary();
             $table->foreignUuid('user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->string('action');
             $table->string('resource_type')->nullable();
@@ -90,7 +89,7 @@ return new class extends Migration
 
         // ── system_settings ───────────────────────────────────────────────────
         Schema::create('system_settings', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('gen_random_uuid()'));
+            $table->uuid('id')->primary();
             $table->string('key')->unique();
             $table->text('value')->nullable();
             $table->text('description')->nullable();
@@ -101,7 +100,7 @@ return new class extends Migration
 
         // ── course_resources ──────────────────────────────────────────────────
         Schema::create('course_resources', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('gen_random_uuid()'));
+            $table->uuid('id')->primary();
             $table->foreignUuid('course_id')->constrained('courses')->cascadeOnDelete();
             $table->string('title');
             $table->text('description')->nullable();
