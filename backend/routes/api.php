@@ -7,6 +7,12 @@ use App\Http\Controllers\EnrollmentController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\SubmissionController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\CourseResourceController;
+use App\Http\Controllers\PortfolioController;
+use App\Http\Controllers\WebhookController;
+use Illuminate\Support\Facades\Route;
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -76,4 +82,37 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('notifications/{id}/read', [NotificationController::class, 'markRead']);
     Route::post('notifications/read-all',  [NotificationController::class, 'markAllRead']);
 
+});
+
+// ── GitHub webhooks (public — called by GitHub servers) ───────────────────────
+Route::post('webhooks/github', [WebhookController::class, 'githubPush']);
+
+// ── Authenticated Phase 3 routes ──────────────────────────────────────────────
+Route::middleware('auth:sanctum')->group(function () {
+
+    // ── Portfolio (student only) ──────────────────────────────────────────────
+    Route::prefix('portfolio')->group(function () {
+        Route::get('/',          [PortfolioController::class, 'show']);
+        Route::put('/',          [PortfolioController::class, 'update']);
+        Route::post('publish',   [PortfolioController::class, 'publish']);
+
+        // Projects within portfolio
+        Route::get('projects',          [PortfolioController::class, 'projects']);
+        Route::post('projects',         [PortfolioController::class, 'storeProject']);
+        Route::put('projects/{id}',     [PortfolioController::class, 'updateProject']);
+        Route::delete('projects/{id}',  [PortfolioController::class, 'destroyProject']);
+    });
+
+    // ── Webhook management ────────────────────────────────────────────────────
+    Route::post('webhooks/register',        [WebhookController::class, 'register']);
+    Route::delete('webhooks/{webhook}',     [WebhookController::class, 'destroy']);
+
+    // ── Course resources ──────────────────────────────────────────────────────
+    Route::prefix('courses/{course}/resources')->group(function () {
+        Route::get('/',          [CourseResourceController::class, 'index']);
+        Route::post('/',         [CourseResourceController::class, 'store']);
+        Route::post('reorder',   [CourseResourceController::class, 'reorder']);
+        Route::put('{resource}', [CourseResourceController::class, 'update']);
+        Route::delete('{resource}', [CourseResourceController::class, 'destroy']);
+    });
 });
