@@ -5,14 +5,15 @@ return [
 
     'allowed_methods' => ['*'],
 
-    // الحل: سمح لكل preview URLs ديال Vercel
-    'allowed_origins' => ['*'],  // ← سمح لكل origins (development فقط)
+    'allowed_origins' => [
+        'http://localhost:5173',
+        'http://localhost:3000',
+    ],
 
-    // أو أحسن: pattern باش يسمح لكل URLs ديال Vercel
-    // 'allowed_origins' => [],
-    // 'allowed_origins_patterns' => [
-    //     '/^https:\/\/dev-bts-.*\.vercel\.app$/',
-    // ],
+    // سمح لكل preview URLs ديال Vercel
+    'allowed_origins_patterns' => [
+        '/^https:\/\/dev-bts-.*\.vercel\.app$/',
+    ],
 
     'allowed_headers' => ['*'],
 
