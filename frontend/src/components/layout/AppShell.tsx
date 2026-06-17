@@ -1,10 +1,12 @@
 import { Outlet } from 'react-router-dom';
 import NavBar from './NavBar';
+import styles from './AppShell.module.css';
+import { memo } from 'react';
 
-console.log('🔥 AppShell loaded');
 
-export default function AppShell() {
-  console.log('🔥 AppShell rendering');
+
+function AppShell() {
+
   
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -17,3 +19,5 @@ export default function AppShell() {
     </div>
   );
 }
+
+export default memo(AppShell);

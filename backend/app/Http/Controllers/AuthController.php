@@ -90,4 +90,88 @@ class AuthController extends Controller
 
         return response()->json(['message' => 'Email verified successfully.']);
     }
+
+    // ── POST /api/auth/verify-email?token=... ─────────────────────────────
+    public function verifyEmailQuery(Request $request): JsonResponse
+    {
+        $token = $request->query('token');
+
+        if (! $token) {
+            return response()->json(['message' => 'Token is required.'], 400);
+        }
+
+        $user = User::where('email_verification_token', $token)->firstOrFail();
+
+        $user->update([
+            'is_verified'              => true,
+            'email_verification_token' => null,
+        ]);
+
+        return response()->json(['message' => 'Email verified successfully.']);
+    }
+
+    // ── PUT /api/auth/update ──────────────────────────────────────────────
+    public function update(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'first_name'      => ['required', 'string', 'max:255'],
+            'last_name'       => ['required', 'string', 'max:255'],
+            'email'           => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
+            'github_username' => ['nullable', 'string', 'max:255'],
+            'bio'             => ['nullable', 'string', 'max:500'],
+            'phone'           => ['nullable', 'string', 'max:20'],
+            'location'        => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $user->update($validated);
+
+        return response()->json([
+            'message' => 'Profile updated successfully.',
+            'user'    => new UserResource($user),
+        ]);
+    }
+
+    // ── POST /api/auth/change-password ────────────────────────────────────
+    public function changePassword(Request $request): JsonResponse
+    {
+        $request->validate([
+            'current_password' => ['required', 'current_password'],
+            'password'         => ['required', 'confirmed', 'min:8'],
+        ]);
+
+        $request->user()->update([
+            'password_hash' => Hash::make($request->password),
+        ]);
+
+        return response()->json(['message' => 'Password changed successfully.']);
+    }
+
+    // ── POST /api/auth/avatar ─────────────────────────────────────────────
+    public function updateAvatar(Request $request): JsonResponse
+    {
+        $request->validate([
+            'avatar' => ['required', 'image', 'max:5120'], // 5MB
+        ]);
+
+        $user = $request->user();
+        
+        if ($request->hasFile('avatar')) {
+            $path = $request->file('avatar')->store('avatars', 'public');
+            
+            // Delete old avatar if it exists and is local
+            if ($user->avatar_url && str_contains($user->avatar_url, '/storage/avatars/')) {
+                $oldPath = str_replace(asset('storage/'), '', $user->avatar_url);
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($oldPath);
+            }
+
+            $user->update(['avatar_url' => asset('storage/' . $path)]);
+        }
+
+        return response()->json([
+            'message' => 'Avatar updated successfully.',
+            'user'    => new UserResource($user),
+        ]);
+    }
 }

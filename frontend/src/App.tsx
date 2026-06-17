@@ -21,6 +21,9 @@ import EditCoursePage from './pages/courses/EditCoursePage';
 import CreateAssignmentPage from './pages/assignments/CreateAssignmentPage';
 import TeacherSubmissions from './pages/assignments/TeacherSubmissions';
 
+// ✅ استيراد الـ Profile
+import Profile from './pages/profile/Profile';
+
 export default function App() {
   const { user, loading } = useAuth();
 
@@ -82,10 +85,16 @@ export default function App() {
             <Route path="/assignments/:assignmentId/submissions" element={<TeacherSubmissions />} />
           </Route>
 
+          {/* ✅ Profile - داخل AppShell */}
+          <Route path="/profile" element={<Profile />} />
+
           {/* Shared routes */}
           <Route path="/notifications" element={<div>Notifications (à venir)</div>} />
         </Route>
       </Route>
+
+      {/* ❌ حذف هذا السطر - الـ Profile الآن داخل AppShell */}
+      {/* <Route path="/profile" element={<Profile />} /> */}
 
       {/* Catch-all */}
       <Route path="*" element={<Navigate to="/" replace />} />

@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+// src/pages/dashboard/Dashboard.tsx
+import { useEffect, useState, useMemo } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getCourses } from '../../api/courses';
 import { getMySubmissions } from '../../api/assignments';
@@ -7,339 +8,514 @@ import {
   getTeacherStats,
   getStudentStats,
   getRecentActivity,
+  getCourseProgress,
   type DashboardStats,
   type RecentActivity,
 } from '../../api/dashboard';
 import type { Course, Submission } from '../../types';
 import styles from './Dashboard.module.css';
 
-// ── Stat card ──────────────────────────────────────────────────────────────────
-function StatCard({ label, value, sub, accent = false, icon }: {
-  label:    string;
-  value:    string | number;
-  sub?:     string;
-  accent?:  boolean;
-  icon?:    string;
+// ── Icons ──────────────────────────────────────────────────────────────────────
+const Icons = {
+  Book: () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M4 6h16M4 12h16M4 18h10" strokeLinecap="round"/>
+    </svg>
+  ),
+  Submission: () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M12 5v14M5 12h14" strokeLinecap="round"/>
+    </svg>
+  ),
+  Grade: () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+    </svg>
+  ),
+  Pending: () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <circle cx="12" cy="12" r="10"/>
+      <polyline points="12 6 12 12 16 14"/>
+    </svg>
+  ),
+  ChevronRight: () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <polyline points="9 6 15 12 9 18"/>
+    </svg>
+  ),
+  Calendar: () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+      <line x1="16" y1="2" x2="16" y2="6"/>
+      <line x1="8" y1="2" x2="8" y2="6"/>
+      <line x1="3" y1="10" x2="21" y2="10"/>
+    </svg>
+  ),
+  Progress: () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <circle cx="12" cy="12" r="10"/>
+      <path d="M12 12l4-4M12 12v8"/>
+    </svg>
+  ),
+};
+
+// ── Stat Card Component ──────────────────────────────────────────────────────
+function StatCard({ 
+  label, 
+  value, 
+  sub, 
+  icon: Icon, 
+  color = 'blue',
+  loading = false 
+}: { 
+  label: string; 
+  value: string | number; 
+  sub?: string; 
+  icon: React.ComponentType;
+  color?: 'blue' | 'green' | 'purple' | 'orange' | 'red';
+  loading?: boolean;
 }) {
-  return (
-    <div className={`${styles.stat} ${accent ? styles.statAccent : ''}`}>
-      <div className={styles.statHeader}>
-        {icon && <span className={styles.statIcon}>{icon}</span>}
-        <p className={styles.statLabel}>{label}</p>
+  const colorMap = {
+    blue: styles.statBlue,
+    green: styles.statGreen,
+    purple: styles.statPurple,
+    orange: styles.statOrange,
+    red: styles.statRed,
+  };
+
+  if (loading) {
+    return (
+      <div className={`${styles.stat} ${styles.statLoading}`}>
+        <div className={styles.statSkeleton} />
       </div>
-      <p className={styles.statValue}>{value}</p>
-      {sub && <p className={styles.statSub}>{sub}</p>}
+    );
+  }
+
+  return (
+    <div className={`${styles.stat} ${colorMap[color]}`}>
+      <div className={styles.statIconWrapper}>
+        <Icon />
+      </div>
+      <div className={styles.statContent}>
+        <p className={styles.statValue}>{value}</p>
+        <p className={styles.statLabel}>{label}</p>
+        {sub && <p className={styles.statSub}>{sub}</p>}
+      </div>
     </div>
   );
 }
 
-// ── Submission status badge ────────────────────────────────────────────────────
-function StatusBadge({ status }: { status: Submission['submission_status'] }) {
-  const map: Record<string, { label: string; cls: string }> = {
-    pending:  { label: 'Pending',  cls: styles.badgePending },
-    queued:   { label: 'Queued',   cls: styles.badgeQueued },
-    grading:  { label: 'Grading…', cls: styles.badgeGrading },
-    graded:   { label: 'Graded',   cls: styles.badgeGraded },
-    failed:   { label: 'Failed',   cls: styles.badgeFailed },
-  };
-  const { label, cls } = map[status] ?? { label: status, cls: '' };
-  return <span className={`${styles.badge} ${cls}`}>{label}</span>;
+// ── Progress Card ──────────────────────────────────────────────────────────────
+function ProgressCard({ 
+  course, 
+  progress 
+}: { 
+  course: Course; 
+  progress: { completed: number; total: number; percent: number };
+}) {
+  const navigate = useNavigate();
+  
+  return (
+    <div 
+      className={styles.progressCard}
+      onClick={() => navigate(`/courses/${course.id}`)}
+    >
+      <div className={styles.progressHeader}>
+        <h4 className={styles.progressTitle}>{course.title}</h4>
+        <span className={styles.progressCode}>{course.code}</span>
+      </div>
+      <div className={styles.progressBarWrapper}>
+        <div 
+          className={styles.progressBar} 
+          style={{ width: `${progress.percent}%` }}
+        />
+      </div>
+      <div className={styles.progressFooter}>
+        <span className={styles.progressText}>
+          {progress.completed}/{progress.total} lessons
+        </span>
+        <span className={styles.progressPercent}>{progress.percent}%</span>
+      </div>
+    </div>
+  );
 }
 
-// ── Activity type icon ─────────────────────────────────────────────────────────
-function ActivityIcon({ type }: { type: RecentActivity['type'] }) {
-  const icons: Record<string, string> = {
+// ── Submission Row ─────────────────────────────────────────────────────────────
+function SubmissionRow({ submission }: { submission: Submission }) {
+  const statusMap = {
+    pending: { label: 'Pending Review', cls: styles.statusPending },
+    queued: { label: 'Queued', cls: styles.statusQueued },
+    grading: { label: 'Grading...', cls: styles.statusGrading },
+    graded: { label: 'Graded ✓', cls: styles.statusGraded },
+    failed: { label: 'Failed ✗', cls: styles.statusFailed },
+  };
+
+  const status = statusMap[submission.submission_status] || statusMap.pending;
+
+  return (
+    <Link to={`/submissions/${submission.id}`} className={styles.submissionRow}>
+      <div className={styles.submissionInfo}>
+        <p className={styles.submissionTitle}>
+          {submission.assignment?.title || 'Assignment'}
+        </p>
+        <div className={styles.submissionMeta}>
+          <span className={styles.submissionDate}>
+            {new Date(submission.submitted_at || submission.created_at).toLocaleDateString('en-US', {
+              month: 'short',
+              day: 'numeric',
+            })}
+          </span>
+          {submission.is_late && (
+            <span className={styles.lateBadge}>Late</span>
+          )}
+        </div>
+      </div>
+      <div className={styles.submissionStatus}>
+        <span className={`${styles.statusBadge} ${status.cls}`}>
+          {status.label}
+        </span>
+        {submission.final_score !== null && submission.final_score !== undefined && (
+          <span className={styles.submissionScore}>
+            {submission.final_score}/100
+          </span>
+        )}
+      </div>
+    </Link>
+  );
+}
+
+// ── Activity Item ──────────────────────────────────────────────────────────────
+function ActivityItem({ activity }: { activity: RecentActivity }) {
+  const typeIcons = {
     submission: '📝',
-    grade:      '✅',
+    grade: '✅',
     enrollment: '🎓',
-    course:     '📚',
+    course: '📚',
   };
-  return <span className={styles.activityIcon}>{icons[type] ?? '•'}</span>;
+
+  return (
+    <div className={styles.activityItem}>
+      <span className={styles.activityIcon}>
+        {typeIcons[activity.type] || '📌'}
+      </span>
+      <div className={styles.activityContent}>
+        <p className={styles.activityTitle}>{activity.title}</p>
+        <p className={styles.activityDesc}>{activity.description}</p>
+        <span className={styles.activityTime}>
+          {new Date(activity.created_at).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+          })}
+        </span>
+      </div>
+    </div>
+  );
 }
 
-// ── Activity type label ────────────────────────────────────────────────────────
-function ActivityTypeLabel({ type }: { type: RecentActivity['type'] }) {
-  const labels: Record<string, string> = {
-    submission: 'Submission',
-    grade:      'Grade',
-    enrollment: 'Enrollment',
-    course:     'Course',
-  };
-  return <span className={`${styles.activityType} ${styles[`type${type}`]}`}>{labels[type]}</span>;
-}
-
-// ── Skeleton loaders ───────────────────────────────────────────────────────────
-function StatSkeleton() {
-  return <div className={`${styles.stat} ${styles.skeletonStat}`} />;
-}
-
-function RowSkeleton() {
-  return <div className={styles.skeletonRow} />;
-}
-
-// ── Main dashboard ─────────────────────────────────────────────────────────────
+// ── Main Dashboard ─────────────────────────────────────────────────────────────
 export default function Dashboard() {
   const { user, isTeacher, isStudent } = useAuth();
+  const navigate = useNavigate();
 
-  const [courses,     setCourses]     = useState<Course[]>([]);
+  // State
+  const [courses, setCourses] = useState<Course[]>([]);
   const [submissions, setSubmissions] = useState<Submission[]>([]);
-  const [stats,       setStats]       = useState<DashboardStats | null>(null);
-  const [activities,  setActivities]  = useState<RecentActivity[]>([]);
-  const [loading,     setLoading]     = useState(true);
-  const [error,       setError]       = useState<string | null>(null);
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [activities, setActivities] = useState<RecentActivity[]>([]);
+  const [courseProgress, setCourseProgress] = useState<Record<string, any>>({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
+  // ── Load data ──────────────────────────────────────────────────────────────
   useEffect(() => {
-    let cancelled = false;
+    let isMounted = true;
 
     async function loadDashboard() {
       try {
         setLoading(true);
         setError(null);
 
-        // Load everything in parallel
+        // 1. Load courses and submissions
         const [coursesData, submissionsData] = await Promise.all([
-          getCourses().then(d => d.slice(0, 6)),
-          getMySubmissions().then(d => d.slice(0, 8)),
+          getCourses(),
+          getMySubmissions(),
         ]);
 
-        if (cancelled) return;
-        setCourses(coursesData);
-        setSubmissions(submissionsData);
+        if (!isMounted) return;
+        setCourses(coursesData.slice(0, 4));
+        setSubmissions(submissionsData.slice(0, 5));
 
-        // Load stats based on role
+        // 2. Load stats based on role
         const statsData = isTeacher
           ? await getTeacherStats()
           : await getStudentStats();
 
-        if (cancelled) return;
+        if (!isMounted) return;
         setStats(statsData);
 
-        // Load recent activity
-        const activityData = await getRecentActivity(8);
-        if (cancelled) return;
+        // 3. Load progress for each course (student only)
+        if (isStudent && coursesData.length > 0) {
+          const progressPromises = coursesData.slice(0, 3).map(c => 
+            getCourseProgress(c.id).catch(() => null)
+          );
+          const progressData = await Promise.all(progressPromises);
+          
+          if (!isMounted) return;
+          const progressMap: Record<string, any> = {};
+          coursesData.slice(0, 3).forEach((c, i) => {
+            if (progressData[i]) {
+              progressMap[c.id] = progressData[i];
+            }
+          });
+          setCourseProgress(progressMap);
+        }
+
+        // 4. Load recent activity
+        const activityData = await getRecentActivity(6);
+        if (!isMounted) return;
         setActivities(activityData);
+
       } catch (err: any) {
-        if (!cancelled) {
-          setError(err?.response?.data?.message || 'Failed to load dashboard data');
+        if (isMounted) {
+          setError(err?.response?.data?.message || 'Failed to load dashboard');
         }
       } finally {
-        if (!cancelled) setLoading(false);
+        if (isMounted) setLoading(false);
       }
     }
 
     loadDashboard();
-    return () => { cancelled = true; };
+
+    // ── Auto-refresh every 30 seconds ──────────────────────────────────────
+    const interval = setInterval(loadDashboard, 30000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
   }, [isTeacher, isStudent]);
 
-  const graded = submissions.filter(s => s.submission_status === 'graded');
-  const pending = submissions.filter(s => s.submission_status === 'pending');
+  // ── Computed values ──────────────────────────────────────────────────────────
+  const upcomingDeadlines = useMemo(() => {
+    const now = new Date();
+    return submissions
+      .filter(s => s.assignment?.due_date && new Date(s.assignment.due_date) > now)
+      .sort((a, b) => 
+        new Date(a.assignment!.due_date).getTime() - 
+        new Date(b.assignment!.due_date).getTime()
+      )
+      .slice(0, 3);
+  }, [submissions]);
 
+  const pendingCount = stats ? (stats.pendingCount ?? 
+    submissions.filter(s => s.submission_status === 'pending').length) : 0;
+
+  const gradedCount = stats ? (stats.gradedCount ??
+    submissions.filter(s => s.submission_status === 'graded').length) : 0;
+
+  // ── Render ──────────────────────────────────────────────────────────────────
   return (
-    <div className={`${styles.root} page-enter`}>
+    <div className={styles.dashboard}>
 
-      {/* Greeting */}
-      <section className={styles.greeting}>
-        <div>
-          <h1 className={styles.greetTitle}>
-            Hello, {user?.first_name ?? 'User'} 👋
-          </h1>
-          <p className={styles.greetSub}>
-            {isTeacher
-              ? 'Manage your courses and review student submissions.'
-              : 'Track your progress, submit assignments, and stay on top of your courses.'}
-          </p>
-        </div>
-        <div className={styles.greetingActions}>
-          {stats && stats.unreadNotifications > 0 && (
-            <Link to="/notifications" className={styles.notificationBadge}>
-              🔔 {stats.unreadNotifications} new
-            </Link>
-          )}
-          {isTeacher ? (
-            <Link to="/courses/new" className={styles.primaryBtn}>
-              + New course
-            </Link>
-          ) : (
-            <Link to="/courses" className={styles.primaryBtn}>
-              Browse courses
-            </Link>
-          )}
+      {/* ── Hero Section ──────────────────────────────────────────────────── */}
+      <section className={styles.hero}>
+        <div className={styles.heroContent}>
+          <div className={styles.heroLeft}>
+            <div className={styles.heroBadge}>
+              {isTeacher ? '👨‍🏫 Teacher' : '🎓 Student'}
+            </div>
+            <h1 className={styles.heroTitle}>
+              Welcome back, <span className={styles.heroName}>{user?.first_name || 'User'}</span>
+            </h1>
+            <p className={styles.heroSub}>
+              {isTeacher
+                ? 'Manage your courses, review submissions, and track student progress.'
+                : 'Continue learning, submit assignments, and track your progress.'}
+            </p>
+            
+            {/* Quick stats inline */}
+            <div className={styles.heroStats}>
+              <div className={styles.heroStat}>
+                <span className={styles.heroStatValue}>
+                  {stats?.coursesCount ?? courses.length}
+                </span>
+                <span className={styles.heroStatLabel}>Courses</span>
+              </div>
+              <div className={styles.heroStatDivider} />
+              <div className={styles.heroStat}>
+                <span className={styles.heroStatValue}>
+                  {stats?.submissionsCount ?? submissions.length}
+                </span>
+                <span className={styles.heroStatLabel}>Submissions</span>
+              </div>
+              <div className={styles.heroStatDivider} />
+              <div className={styles.heroStat}>
+                <span className={styles.heroStatValue}>
+                  {stats ? (stats.avgScore !== null ? `${stats.avgScore}%` : '—') : '—'}
+                </span>
+                <span className={styles.heroStatLabel}>Avg Score</span>
+              </div>
+            </div>
+          </div>
+
+          <div className={styles.heroRight}>
+            {stats && stats.unreadNotifications > 0 && (
+              <Link to="/notifications" className={styles.notificationBell}>
+                <span className={styles.bellIcon}>🔔</span>
+                <span className={styles.bellCount}>{stats.unreadNotifications}</span>
+                <span className={styles.bellLabel}>New notifications</span>
+              </Link>
+            )}
+            <div className={styles.heroActions}>
+              <button 
+                className={`${styles.heroBtn} ${styles.heroBtnPrimary}`}
+                onClick={() => navigate(isTeacher ? '/courses/new' : '/courses')}
+              >
+                {isTeacher ? '+ Create Course' : 'Browse Courses →'}
+              </button>
+              <button 
+                className={`${styles.heroBtn} ${styles.heroBtnSecondary}`}
+                onClick={() => navigate('/submissions')}
+              >
+                View Submissions
+              </button>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Error banner */}
+      {/* ── Error Banner ───────────────────────────────────────────────────── */}
       {error && (
         <div className={styles.errorBanner}>
-          <span>⚠️</span> {error}
+          <span>⚠️</span>
+          <span>{error}</span>
           <button onClick={() => window.location.reload()} className={styles.retryBtn}>
             Retry
           </button>
         </div>
       )}
 
-      {/* Stats row */}
-      <section className={styles.statsRow}>
-        {loading ? (
-          <>
-            <StatSkeleton />
-            <StatSkeleton />
-            <StatSkeleton />
-            <StatSkeleton />
-          </>
-        ) : (
-          <>
-            <StatCard
-              label="Courses"
-              value={stats?.coursesCount ?? courses.length}
-              sub={isTeacher ? 'you teach' : 'enrolled'}
-              icon="📚"
-            />
-
-            <StatCard
-              label="Submissions"
-              value={stats?.submissionsCount ?? submissions.length}
-              sub="total"
-              icon="📝"
-            />
-
-            {isStudent && (
-              <>
-                <StatCard
-                  label="Avg Score"
-                  value={stats?.avgScore !== null ? `${stats?.avgScore}/100` : '—'}
-                  sub="across graded"
-                  accent
-                  icon="⭐"
-                />
-                <StatCard
-                  label="Pending"
-                  value={stats?.pendingCount ?? pending.length}
-                  sub="to grade"
-                  icon="⏳"
-                />
-              </>
-            )}
-
-            {isTeacher && (
-              <>
-                <StatCard
-                  label="Graded"
-                  value={stats?.gradedCount ?? graded.length}
-                  sub={`of ${stats?.submissionsCount ?? submissions.length}`}
-                  accent
-                  icon="✅"
-                />
-                <StatCard
-                  label="Pending"
-                  value={stats?.pendingCount ?? pending.length}
-                  sub="to review"
-                  icon="⏳"
-                />
-              </>
-            )}
-          </>
-        )}
+      {/* ── Stats Grid ────────────────────────────────────────────────────── */}
+      <section className={styles.statsGrid}>
+        <StatCard
+          label="Total Courses"
+          value={stats?.coursesCount ?? courses.length}
+          icon={Icons.Book}
+          color="blue"
+          loading={loading}
+        />
+        <StatCard
+          label="Submissions"
+          value={stats?.submissionsCount ?? submissions.length}
+          icon={Icons.Submission}
+          color="purple"
+          loading={loading}
+        />
+        <StatCard
+          label="Graded"
+          value={gradedCount}
+          icon={Icons.Grade}
+          color="green"
+          loading={loading}
+        />
+        <StatCard
+          label="Pending"
+          value={pendingCount}
+          icon={Icons.Pending}
+          color="orange"
+          loading={loading}
+        />
       </section>
 
-      <div className={styles.columns}>
+      {/* ── Main Grid ──────────────────────────────────────────────────────── */}
+      <div className={styles.mainGrid}>
 
-        {/* ── Left column ─────────────────────────────────────────────────────── */}
-        <div className={styles.leftCol}>
+        {/* ── Left Column ────────────────────────────────────────────────── */}
+        <div className={styles.leftColumn}>
 
-          {/* Your courses */}
-          <section className={styles.section}>
-            <div className={styles.sectionHead}>
-              <h2 className={styles.sectionTitle}>
-                {isTeacher ? 'Your courses' : 'My courses'}
-              </h2>
-              <Link to="/courses" className={styles.seeAll}>See all →</Link>
-            </div>
-
-            {loading ? (
-              <div className={styles.loadingList}>
-                {[1,2,3].map(i => <RowSkeleton key={i} />)}
+          {/* Course Progress (Student) */}
+          {isStudent && courses.length > 0 && (
+            <section className={styles.card}>
+              <div className={styles.cardHeader}>
+                <h3 className={styles.cardTitle}>📊 Your Progress</h3>
+                <Link to="/courses" className={styles.cardLink}>View all →</Link>
               </div>
-            ) : courses.length === 0 ? (
-              <div className={styles.empty}>
-                <p>{isTeacher ? 'No courses yet.' : 'Not enrolled in any courses.'}</p>
-                <Link to={isTeacher ? '/courses/new' : '/courses'} className={styles.emptyLink}>
-                  {isTeacher ? 'Create your first course →' : 'Browse courses →'}
-                </Link>
-              </div>
-            ) : (
-              <ul className={styles.courseList}>
-                {courses.map(course => (
-                  <li key={course.id}>
-                    <Link to={`/courses/${course.id}`} className={styles.courseRow}>
-                      <div className={styles.courseCode}>{course.code}</div>
-                      <div className={styles.courseInfo}>
-                        <p className={styles.courseTitle}>{course.title}</p>
-                        <p className={styles.courseMeta}>
-                          {course.semester} {course.academic_year} · {course.credits} credits
-                        </p>
+              <div className={styles.progressList}>
+                {loading ? (
+                  Array(3).fill(0).map((_, i) => (
+                    <div key={i} className={styles.progressSkeleton} />
+                  ))
+                ) : (
+                  courses.slice(0, 3).map(course => {
+                    const progress = courseProgress[course.id];
+                    return progress ? (
+                      <ProgressCard 
+                        key={course.id}
+                        course={course}
+                        progress={{
+                          completed: progress.completed_lessons || 0,
+                          total: progress.total_lessons || 1,
+                          percent: progress.percent || 0,
+                        }}
+                      />
+                    ) : (
+                      <div key={course.id} className={styles.progressCard}>
+                        <div className={styles.progressHeader}>
+                          <h4 className={styles.progressTitle}>{course.title}</h4>
+                          <span className={styles.progressCode}>{course.code}</span>
+                        </div>
+                        <div className={styles.progressBarWrapper}>
+                          <div className={styles.progressBar} style={{ width: '0%' }} />
+                        </div>
+                        <div className={styles.progressFooter}>
+                          <span className={styles.progressText}>Not started</span>
+                          <span className={styles.progressPercent}>0%</span>
+                        </div>
                       </div>
-                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
-                        className={styles.arrowIcon}>
-                        <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="1.5"
-                          strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
-
-          {/* Recent submissions */}
-          <section className={styles.section}>
-            <div className={styles.sectionHead}>
-              <h2 className={styles.sectionTitle}>
-                {isTeacher ? 'Recent submissions' : 'My submissions'}
-              </h2>
-              <Link to="/submissions" className={styles.seeAll}>See all →</Link>
-            </div>
-
-            {loading ? (
-              <div className={styles.loadingList}>
-                {[1,2,3].map(i => <RowSkeleton key={i} />)}
-              </div>
-            ) : submissions.length === 0 ? (
-              <div className={styles.empty}>
-                <p>No submissions yet.</p>
-                {isStudent && (
-                  <Link to="/courses" className={styles.emptyLink}>
-                    Find assignments to submit →
-                  </Link>
+                    );
+                  })
                 )}
               </div>
+            </section>
+          )}
+
+          {/* Upcoming Deadlines */}
+          <section className={styles.card}>
+            <div className={styles.cardHeader}>
+              <h3 className={styles.cardTitle}>⏰ Upcoming Deadlines</h3>
+              <Link to="/submissions" className={styles.cardLink}>View all →</Link>
+            </div>
+            {loading ? (
+              Array(3).fill(0).map((_, i) => (
+                <div key={i} className={styles.deadlineSkeleton} />
+              ))
+            ) : upcomingDeadlines.length === 0 ? (
+              <div className={styles.emptyState}>
+                <p className={styles.emptyText}>No upcoming deadlines 🎉</p>
+                <p className={styles.emptySub}>You're all caught up!</p>
+              </div>
             ) : (
-              <ul className={styles.subList}>
-                {submissions.map(sub => (
-                  <li key={sub.id}>
-                    <Link to={`/submissions/${sub.id}`} className={styles.subRow}>
-                      <div className={styles.subInfo}>
-                        <p className={styles.subTitle}>
-                          {sub.assignment?.title ?? 'Assignment'}
+              <ul className={styles.deadlineList}>
+                {upcomingDeadlines.map(sub => (
+                  <li key={sub.id} className={styles.deadlineItem}>
+                    <Link to={`/submissions/${sub.id}`} className={styles.deadlineLink}>
+                      <div className={styles.deadlineInfo}>
+                        <p className={styles.deadlineTitle}>
+                          {sub.assignment?.title || 'Assignment'}
                         </p>
-                        <p className={styles.subMeta}>
-                          {new Date(sub.submitted_at || sub.created_at).toLocaleDateString('en-US', {
-                            month: 'short',
-                            day: 'numeric',
-                            year: 'numeric',
-                          })}
-                          {sub.is_late && <span className={styles.lateBadge}>Late</span>}
+                        <p className={styles.deadlineCourse}>
+                          {sub.assignment?.course?.title || 'Course'}
                         </p>
                       </div>
-                      <div className={styles.subRight}>
-                        <StatusBadge status={sub.submission_status} />
-                        {sub.final_score !== null && sub.final_score !== undefined && (
-                          <span className={`${styles.score} ${
-                            (Number(sub.final_score) >= 80) ? styles.scoreHigh :
-                            (Number(sub.final_score) >= 60) ? styles.scoreMid : styles.scoreLow
-                          }`}>
-                            {sub.final_score}/100
-                          </span>
-                        )}
+                      <div className={styles.deadlineDate}>
+                        <Icons.Calendar />
+                        <span>
+                          {new Date(sub.assignment!.due_date).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                          })}
+                        </span>
                       </div>
                     </Link>
                   </li>
@@ -349,103 +525,112 @@ export default function Dashboard() {
           </section>
         </div>
 
-        {/* ── Right column ────────────────────────────────────────────────────── */}
-        <div className={styles.rightCol}>
+        {/* ── Right Column ────────────────────────────────────────────────── */}
+        <div className={styles.rightColumn}>
 
-          {/* Recent activity */}
-          <section className={`${styles.section} ${styles.activitySection}`}>
-            <div className={styles.sectionHead}>
-              <h2 className={styles.sectionTitle}>Recent activity</h2>
+          {/* Recent Submissions */}
+          <section className={styles.card}>
+            <div className={styles.cardHeader}>
+              <h3 className={styles.cardTitle}>📝 Recent Submissions</h3>
+              <Link to="/submissions" className={styles.cardLink}>View all →</Link>
             </div>
-
             {loading ? (
-              <div className={styles.loadingList}>
-                {[1,2,3,4].map(i => <RowSkeleton key={i} />)}
-              </div>
-            ) : activities.length === 0 ? (
-              <div className={styles.empty}>
-                <p>No recent activity.</p>
+              Array(3).fill(0).map((_, i) => (
+                <div key={i} className={styles.submissionSkeleton} />
+              ))
+            ) : submissions.length === 0 ? (
+              <div className={styles.emptyState}>
+                <p className={styles.emptyText}>No submissions yet</p>
+                <p className={styles.emptySub}>
+                  {isTeacher 
+                    ? 'Students haven\'t submitted anything yet' 
+                    : 'Start by enrolling in a course'}
+                </p>
               </div>
             ) : (
-              <ul className={styles.activityList}>
-                {activities.map(act => (
-                  <li key={act.id}>
-                    {act.link ? (
-                      <Link to={act.link} className={styles.activityRow}>
-                        <ActivityIcon type={act.type} />
-                        <div className={styles.activityContent}>
-                          <p className={styles.activityTitle}>{act.title}</p>
-                          <p className={styles.activityDesc}>{act.description}</p>
-                          <p className={styles.activityTime}>
-                            {new Date(act.created_at).toLocaleDateString('en-US', {
-                              month: 'short',
-                              day: 'numeric',
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            })}
-                          </p>
-                        </div>
-                        <ActivityTypeLabel type={act.type} />
-                      </Link>
-                    ) : (
-                      <div className={styles.activityRow}>
-                        <ActivityIcon type={act.type} />
-                        <div className={styles.activityContent}>
-                          <p className={styles.activityTitle}>{act.title}</p>
-                          <p className={styles.activityDesc}>{act.description}</p>
-                          <p className={styles.activityTime}>
-                            {new Date(act.created_at).toLocaleDateString('en-US', {
-                              month: 'short',
-                              day: 'numeric',
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            })}
-                          </p>
-                        </div>
-                        <ActivityTypeLabel type={act.type} />
-                      </div>
-                    )}
-                  </li>
+              <ul className={styles.submissionList}>
+                {submissions.slice(0, 4).map(sub => (
+                  <SubmissionRow key={sub.id} submission={sub} />
                 ))}
               </ul>
             )}
           </section>
 
-          {/* Quick actions */}
-          <section className={`${styles.section} ${styles.quickActions}`}>
-            <div className={styles.sectionHead}>
-              <h2 className={styles.sectionTitle}>Quick actions</h2>
+          {/* Recent Activity */}
+          <section className={styles.card}>
+            <div className={styles.cardHeader}>
+              <h3 className={styles.cardTitle}>🔄 Recent Activity</h3>
+            </div>
+            {loading ? (
+              Array(3).fill(0).map((_, i) => (
+                <div key={i} className={styles.activitySkeleton} />
+              ))
+            ) : activities.length === 0 ? (
+              <div className={styles.emptyState}>
+                <p className={styles.emptyText}>No recent activity</p>
+              </div>
+            ) : (
+              <ul className={styles.activityList}>
+                {activities.map(activity => (
+                  <ActivityItem key={activity.id} activity={activity} />
+                ))}
+              </ul>
+            )}
+          </section>
+
+          {/* Quick Actions */}
+          <section className={`${styles.card} ${styles.quickActions}`}>
+            <div className={styles.cardHeader}>
+              <h3 className={styles.cardTitle}>⚡ Quick Actions</h3>
             </div>
             <div className={styles.actionGrid}>
               {isTeacher ? (
                 <>
-                  <Link to="/courses/new" className={styles.actionCard}>
+                  <button 
+                    className={styles.actionBtn}
+                    onClick={() => navigate('/courses/new')}
+                  >
                     <span className={styles.actionIcon}>➕</span>
-                    <span className={styles.actionLabel}>New course</span>
-                  </Link>
-                  <Link to="/submissions" className={styles.actionCard}>
+                    New Course
+                  </button>
+                  <button 
+                    className={styles.actionBtn}
+                    onClick={() => navigate('/submissions')}
+                  >
                     <span className={styles.actionIcon}>📋</span>
-                    <span className={styles.actionLabel}>Review submissions</span>
-                  </Link>
-                  <Link to="/courses" className={styles.actionCard}>
+                    Review
+                  </button>
+                  <button 
+                    className={styles.actionBtn}
+                    onClick={() => navigate('/courses')}
+                  >
                     <span className={styles.actionIcon}>⚙️</span>
-                    <span className={styles.actionLabel}>Manage courses</span>
-                  </Link>
+                    Manage
+                  </button>
                 </>
               ) : (
                 <>
-                  <Link to="/courses" className={styles.actionCard}>
+                  <button 
+                    className={styles.actionBtn}
+                    onClick={() => navigate('/courses')}
+                  >
                     <span className={styles.actionIcon}>🔍</span>
-                    <span className={styles.actionLabel}>Browse courses</span>
-                  </Link>
-                  <Link to="/submissions" className={styles.actionCard}>
+                    Explore
+                  </button>
+                  <button 
+                    className={styles.actionBtn}
+                    onClick={() => navigate('/submissions')}
+                  >
                     <span className={styles.actionIcon}>📤</span>
-                    <span className={styles.actionLabel}>My submissions</span>
-                  </Link>
-                  <Link to="/notifications" className={styles.actionCard}>
+                    Submit
+                  </button>
+                  <button 
+                    className={styles.actionBtn}
+                    onClick={() => navigate('/notifications')}
+                  >
                     <span className={styles.actionIcon}>🔔</span>
-                    <span className={styles.actionLabel}>Notifications</span>
-                  </Link>
+                    Alerts
+                  </button>
                 </>
               )}
             </div>

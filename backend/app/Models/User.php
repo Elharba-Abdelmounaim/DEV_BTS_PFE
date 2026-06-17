@@ -49,6 +49,7 @@ class User extends Authenticatable
         'avatar_url',
         'phone',
         'bio',
+        'location',
         'github_username',
         'github_token_encrypted',
         'is_active',

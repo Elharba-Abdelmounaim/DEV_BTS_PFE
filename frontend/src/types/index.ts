@@ -23,6 +23,7 @@ export interface Course {
   credits: number;
   max_students: number;
   is_active: boolean;
+  enrollments_count?: number;
   instructor_id: string;
   instructor?: User;
   assignments?: Assignment[];
@@ -216,4 +217,31 @@ export interface CourseProgress {
   total_lessons: number;
   completed_lessons: number;
   percent: number;
+}
+
+
+export interface UpdateProfilePayload {
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  github_username?: string;
+  avatar_url?: string;
+  bio?: string;
+  phone?: string;
+  location?: string;
+}
+
+export interface ChangePasswordPayload {
+  current_password: string;
+  password: string;
+  password_confirmation: string;
+}
+
+export interface ProfileStats {
+  totalCourses: number;
+  totalSubmissions: number;
+  averageScore: number | null;
+  completedLessons: number;
+  totalLessons: number;
+  joinDate: string;
 }

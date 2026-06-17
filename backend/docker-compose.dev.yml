@@ -38,6 +38,26 @@ services:
     environment:
       LOG_LEVEL: DEBUG
 
+  # ── React Frontend (Dev Mode) ──────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: builder       # use builder stage (Node.js environment)
+    container_name: deveduhub_frontend_dev
+    command: npm run dev -- --host
+    ports:
+      - "3001:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      VITE_API_URL: http://localhost:8080/api/v1
+    depends_on:
+      - nginx
+    networks:
+      - deveduhub_net
+
   # ── Mailpit — catches all outgoing email in dev ───────────────────────────
   mailpit:
     image: axllent/mailpit:latest

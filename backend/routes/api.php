@@ -40,15 +40,19 @@ Route::prefix('v1')->group(function () {
     | AUTH
     |-------------------------
     */
-    Route::middleware('throttle:5,1')->prefix('auth')->group(function () {
+    Route::middleware('throttle:20,1')->prefix('auth')->group(function () {
         Route::post('register', [AuthController::class, 'register']);
         Route::post('login',    [AuthController::class, 'login']);
         Route::get('verify/{token}', [AuthController::class, 'verifyEmail']);
+        Route::post('verify-email', [AuthController::class, 'verifyEmailQuery']);
     });
 
     Route::middleware('auth:sanctum')->prefix('auth')->group(function () {
         Route::post('logout', [AuthController::class, 'logout']);
         Route::get('me',      [AuthController::class, 'me']);
+        Route::put('update',  [AuthController::class, 'update']);
+        Route::post('change-password', [AuthController::class, 'changePassword']);
+        Route::post('avatar', [AuthController::class, 'updateAvatar']);
     });
 
     /*
@@ -199,7 +203,7 @@ Route::prefix('v1')->group(function () {
 # 🟡 LEGACY API (BACKWARD COMPATIBILITY)
 # ============================================================
 
-Route::middleware('throttle:5,1')->group(function () {
+Route::middleware('throttle:20,1')->group(function () {
     Route::post('auth/register', [AuthController::class, 'register']);
     Route::post('auth/login',    [AuthController::class, 'login']);
     Route::get('auth/verify/{token}', [AuthController::class, 'verifyEmail']);

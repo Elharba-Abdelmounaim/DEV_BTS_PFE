@@ -44,7 +44,7 @@ export async function getTeacherStats(): Promise<DashboardStats> {
     pendingCount: submissions.filter(s => s.submission_status === 'pending').length,
     avgScore,
     unreadNotifications: notifications.length,
-    enrollmentsCount: 0,
+    enrollmentsCount: courses.reduce((sum, c) => sum + (c.enrollments_count ?? 0), 0),
   };
 }
 

@@ -1,6 +1,7 @@
-import { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useReducer, useEffect, ReactNode, useCallback, useRef } from 'react';
 import { login as apiLogin, register as apiRegister, logout as apiLogout, me } from '../api/auth';
 import type { User, LoginPayload, RegisterPayload } from '../types';
+
 
 interface AuthState {
   user: User | null;
@@ -42,19 +43,32 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(authReducer, initialState);
+  const isMounted = useRef(true);
 
   useEffect(() => {
+    isMounted.current = true;
     const token = localStorage.getItem('token');
+    
     if (token) {
       me()
-        .then((user) => dispatch({ type: 'SET_USER', payload: user }))
+        .then((user) => {
+          if (isMounted.current) {
+            dispatch({ type: 'SET_USER', payload: user });
+          }
+        })
         .catch(() => {
-          localStorage.removeItem('token');
-          dispatch({ type: 'SET_USER', payload: null });
+          if (isMounted.current) {
+            localStorage.removeItem('token');
+            dispatch({ type: 'SET_USER', payload: null });
+          }
         });
     } else {
       dispatch({ type: 'SET_USER', payload: null });
     }
+
+    return () => {
+      isMounted.current = false;
+    };
   }, []);
 
   const setUser = (user: User | null) => {
