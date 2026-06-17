@@ -1,142 +1,1098 @@
+/* src/pages/courses/CourseDetail.module.css */
+
 .page {
-  animation: pageEnter 0.4s ease-out;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 32px;
+  min-height: 100vh;
+  background: #f8fafc;
 }
 
-.header {
-  background: white;
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  margin-bottom: 2rem;
-}
-
-.code {
-  display: inline-block;
-  background: var(--color-primary);
-  color: white;
-  padding: 0.25rem 0.75rem;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-}
-
-.header h1 {
-  font-family: 'DM Serif Display', serif;
-  font-size: 2rem;
-  color: var(--color-primary);
-  margin: 0 0 0.75rem;
-}
-
-.header p {
-  color: var(--color-text-muted);
-  margin: 0 0 1rem;
-  line-height: 1.6;
-}
-
-.meta {
-  display: flex;
-  gap: 1.5rem;
-  font-size: 0.875rem;
-  color: var(--color-text-muted);
-}
-
-.section {
-  background: white;
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-}
-
-.section h2 {
-  font-family: 'DM Serif Display', serif;
-  font-size: 1.5rem;
-  color: var(--color-primary);
-  margin: 0 0 1.5rem;
-}
-
-.assignments {
+/* ── Loading ────────────────────────────────────────────────────────────────── */
+.loadingContainer {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-}
-
-.assignmentCard {
-  display: block;
-  padding: 1.25rem;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 8px;
-  text-decoration: none;
-  color: inherit;
-  transition: all 0.2s;
-}
-
-.assignmentCard:hover {
-  border-color: var(--color-primary);
-  background: rgba(26, 47, 74, 0.02);
-}
-
-.assignmentHeader {
-  display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.5rem;
+  justify-content: center;
+  min-height: 400px;
+  gap: 16px;
 }
 
-.assignmentHeader h3 {
-  font-size: 1.1rem;
-  color: var(--color-primary);
+.loadingSpinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #e2e8f0;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loadingText {
+  font-size: 14px;
+  color: #94a3b8;
+}
+
+/* ── Error ──────────────────────────────────────────────────────────────────── */
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 12px;
+}
+
+.errorIcon {
+  font-size: 48px;
+}
+
+.errorTitle {
+  font-size: 24px;
+  font-weight: 600;
+  color: #0f172a;
   margin: 0;
 }
 
-.published {
-  background: #d1fae5;
-  color: #065f46;
-  padding: 0.25rem 0.75rem;
+.errorText {
+  font-size: 15px;
+  color: #64748b;
+  margin: 0;
+}
+
+.errorBackLink {
+  color: #3b82f6;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.errorBackLink:hover {
+  color: #2563eb;
+}
+
+/* ── Header ────────────────────────────────────────────────────────────────── */
+.header {
+  background: white;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  padding: 24px 32px;
+  margin-bottom: 24px;
+}
+
+.headerTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.backLink {
+  color: #64748b;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.backLink:hover {
+  color: #3b82f6;
+}
+
+.backArrow {
+  font-size: 16px;
+}
+
+.headerActions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.headerBtn {
+  padding: 8px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+}
+
+.editBtn {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.editBtn:hover {
+  background: #e2e8f0;
+}
+
+.deleteBtn {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.deleteBtn:hover {
+  background: #fca5a5;
+}
+
+.enrollBtn {
+  background: #0f172a;
+  color: white;
+}
+
+.enrollBtn:hover:not(:disabled) {
+  background: #1e293b;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(15,23,42,0.3);
+}
+
+.enrollBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.enrolledBadge {
+  padding: 8px 20px;
+  background: #dcfce7;
+  color: #22c55e;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.teacherBadge {
+  padding: 8px 20px;
+  background: #eff6ff;
+  color: #3b82f6;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+/* ── Header Main ────────────────────────────────────────────────────────────── */
+.headerMain {
+  display: flex;
+  justify-content: space-between;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.headerMainLeft {
+  flex: 1;
+  min-width: 0;
+}
+
+.courseCodeBadge {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #3b82f6;
+  background: #eff6ff;
+  padding: 2px 14px;
+  border-radius: 100px;
+  margin-bottom: 8px;
+}
+
+.courseTitle {
+  font-size: 28px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 8px 0;
+}
+
+.courseDescription {
+  font-size: 15px;
+  color: #64748b;
+  margin: 0 0 16px 0;
+  line-height: 1.6;
+  max-width: 600px;
+}
+
+.courseMeta {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.metaIcon {
+  font-size: 14px;
+}
+
+.headerMainRight {
+  flex-shrink: 0;
+}
+
+.instructorCard {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 20px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.instructorAvatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #3b82f6;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.instructorInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.instructorLabel {
+  font-size: 11px;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.instructorName {
+  font-size: 15px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.instructorEmail {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+/* ── Error Banner ──────────────────────────────────────────────────────────── */
+.errorBanner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  background: #fee2e2;
+  border: 1px solid #fca5a5;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+.errorBannerIcon {
+  font-size: 18px;
+}
+
+.errorBannerText {
+  flex: 1;
+  font-size: 14px;
+  color: #dc2626;
+}
+
+.retryBtn {
+  background: #dc2626;
+  color: white;
+  border: none;
+  padding: 6px 16px;
   border-radius: 6px;
-  font-size: 0.75rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.retryBtn:hover {
+  background: #b91c1c;
+}
+
+/* ── Stats Row ────────────────────────────────────────────────────────────── */
+.statsRow {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.statBox {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: all 0.2s;
+}
+
+.statBox:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+}
+
+.statIcon {
+  font-size: 20px;
+  margin-bottom: 4px;
+}
+
+.statValue {
+  font-size: 24px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.statLabel {
+  font-size: 13px;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+/* ── Tabs ──────────────────────────────────────────────────────────────────── */
+.tabs {
+  display: flex;
+  gap: 4px;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  padding: 4px;
+  margin-bottom: 24px;
+  overflow-x: auto;
+}
+
+.tabBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.tabBtn:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.tabBtnActive {
+  background: #0f172a;
+  color: white;
+}
+
+.tabBtnActive:hover {
+  background: #1e293b;
+  color: white;
+}
+
+.tabIcon {
+  font-size: 16px;
+}
+
+.tabCount {
+  background: rgba(255,255,255,0.2);
+  padding: 0 8px;
+  border-radius: 100px;
+  font-size: 11px;
   font-weight: 600;
 }
 
-.draft {
+.tabBtnActive .tabCount {
+  background: rgba(255,255,255,0.2);
+}
+
+/* ── Tab Content ────────────────────────────────────────────────────────────── */
+.tabContent {
+  min-height: 300px;
+}
+
+/* ── Overview Tab ───────────────────────────────────────────────────────────── */
+.overviewTab {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.overviewGrid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+}
+
+.overviewCard {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  padding: 20px 24px;
+}
+
+.overviewCardTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0 0 12px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.overviewCardIcon {
+  font-size: 18px;
+}
+
+.overviewCardText {
+  font-size: 14px;
+  color: #475569;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.quickInfoList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.quickInfoList li {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.quickInfoList li:last-child {
+  border-bottom: none;
+}
+
+.quickInfoLabel {
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+.quickInfoValue {
+  font-size: 13px;
+  font-weight: 500;
+  color: #0f172a;
+}
+
+.statusActive {
+  color: #22c55e;
+}
+
+.statusInactive {
+  color: #ef4444;
+}
+
+/* ── Quick Actions ────────────────────────────────────────────────────────── */
+.quickActions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.quickActionBtn {
+  padding: 10px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+  text-align: center;
+}
+
+.quickActionBtn:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  transform: translateX(4px);
+}
+
+.quickActionDanger {
+  border-color: #fca5a5;
+  color: #dc2626;
+}
+
+.quickActionDanger:hover {
+  background: #fee2e2;
+  border-color: #dc2626;
+}
+
+/* ── Assignments Tab ───────────────────────────────────────────────────────── */
+.assignmentsTab {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.assignmentsHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 12px 16px;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.assignmentsCount {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.assignmentsPublished {
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+.createAssignmentSmallBtn {
+  margin-left: auto;
+  padding: 4px 14px;
+  background: #0f172a;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.createAssignmentSmallBtn:hover {
+  background: #1e293b;
+  transform: scale(1.02);
+}
+
+.assignmentsList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ── Assignment Card ───────────────────────────────────────────────────────── */
+.assignmentCard {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  padding: 16px 20px;
+  text-decoration: none;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.assignmentCard:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 4px 12px rgba(59,130,246,0.08);
+  transform: translateX(4px);
+}
+
+.assignmentCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.assignmentCardLeft {
+  display: flex;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.assignmentIcon {
+  font-size: 24px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.assignmentTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0 0 4px 0;
+}
+
+.assignmentDesc {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.assignmentCardBadges {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+  align-items: center;
+}
+
+.viewSubmissionsBtn {
+  padding: 4px 12px;
+  background: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.viewSubmissionsBtn:hover {
+  background: #e2e8f0;
+}
+
+.assignmentStatus {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 12px;
+  border-radius: 100px;
+}
+
+.statusPublished {
+  background: #dcfce7;
+  color: #22c55e;
+}
+
+.statusDraft {
   background: #fef3c7;
-  color: #92400e;
-  padding: 0.25rem 0.75rem;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  font-weight: 600;
+  color: #d97706;
 }
 
-.assignmentCard p {
-  color: var(--color-text-muted);
-  font-size: 0.875rem;
-  margin: 0 0 0.75rem;
+.assignmentCardFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12px;
+  border-top: 1px solid #f1f5f9;
 }
 
 .assignmentMeta {
   display: flex;
-  gap: 1.5rem;
-  font-size: 0.8rem;
-  color: var(--color-text-muted);
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
-.loading {
-  display: grid;
-  place-items: center;
-  min-height: 400px;
-  color: var(--color-text-muted);
+.assignmentMetaItem {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: #64748b;
 }
 
-.error {
-  background: #fee;
-  border: 1px solid #fcc;
-  color: #c33;
-  padding: 1rem;
-  border-radius: 8px;
+.metaIcon {
+  font-size: 14px;
 }
 
-.empty {
+.overdue {
+  color: #ef4444;
+  font-weight: 500;
+}
+
+.soon {
+  color: #f59e0b;
+  font-weight: 500;
+}
+
+.assignmentArrow {
+  color: #94a3b8;
+  font-size: 18px;
+  transition: transform 0.2s;
+}
+
+.assignmentCard:hover .assignmentArrow {
+  transform: translateX(4px);
+  color: #3b82f6;
+}
+
+/* ── Empty State ────────────────────────────────────────────────────────────── */
+.emptyState {
   text-align: center;
-  padding: 2rem;
-  color: var(--color-text-muted);
+  padding: 60px 20px;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.emptyIcon {
+  font-size: 48px;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.emptyTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0 0 4px 0;
+}
+
+.emptyDesc {
+  font-size: 14px;
+  color: #94a3b8;
+  margin: 0 0 16px 0;
+}
+
+.createAssignmentBtn {
+  display: inline-block;
+  padding: 10px 24px;
+  background: #0f172a;
+  color: white;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.createAssignmentBtn:hover {
+  background: #1e293b;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(15,23,42,0.3);
+}
+
+/* ── Lessons & Students Tab ────────────────────────────────────────────────── */
+.lessonsTab,
+.studentsTab {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.comingSoon {
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.comingSoonIcon {
+  font-size: 48px;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.comingSoonTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0 0 4px 0;
+}
+
+.comingSoonDesc {
+  font-size: 14px;
+  color: #94a3b8;
+  margin: 0 0 16px 0;
+}
+
+.manageLessonsBtn {
+  display: inline-block;
+  padding: 10px 24px;
+  background: #0f172a;
+  color: white;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.manageLessonsBtn:hover {
+  background: #1e293b;
+  transform: translateY(-2px);
+}
+
+.studentStats {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  margin-top: 16px;
+}
+
+.studentStat {
+  text-align: center;
+}
+
+.studentStatValue {
+  display: block;
+  font-size: 28px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.studentStatLabel {
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+/* ── Modal ──────────────────────────────────────────────────────────────────── */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal {
+  background: white;
+  border-radius: 16px;
+  padding: 32px;
+  max-width: 480px;
+  width: 90%;
+  text-align: center;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.modalIcon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.modalTitle {
+  font-size: 20px;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0 0 8px 0;
+}
+
+.modalText {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0 0 24px 0;
+  line-height: 1.6;
+}
+
+.modalText strong {
+  color: #0f172a;
+}
+
+.modalActions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.modalCancelBtn,
+.modalDeleteBtn {
+  padding: 10px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.modalCancelBtn {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.modalCancelBtn:hover {
+  background: #e2e8f0;
+}
+
+.modalDeleteBtn {
+  background: #dc2626;
+  color: white;
+}
+
+.modalDeleteBtn:hover {
+  background: #b91c1c;
+  transform: scale(1.02);
+}
+
+/* ── Responsive ────────────────────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .overviewGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .statsRow {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .page {
+    padding: 16px;
+  }
+  
+  .header {
+    padding: 20px;
+  }
+  
+  .headerTop {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+  
+  .headerActions {
+    justify-content: stretch;
+  }
+  
+  .headerActions .headerBtn,
+  .headerActions .enrolledBadge,
+  .headerActions .teacherBadge {
+    flex: 1;
+    justify-content: center;
+  }
+  
+  .headerMain {
+    flex-direction: column;
+  }
+  
+  .courseTitle {
+    font-size: 22px;
+  }
+  
+  .courseMeta {
+    gap: 10px;
+  }
+  
+  .statsRow {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  
+  .tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding: 4px;
+  }
+  
+  .tabBtn {
+    padding: 8px 14px;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+  
+  .assignmentCardHeader {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .assignmentCardBadges {
+    justify-content: flex-start;
+  }
+  
+  .assignmentCardFooter {
+    flex-direction: column;
+    gap: 8px;
+    align-items: stretch;
+  }
+  
+  .assignmentMeta {
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .assignmentArrow {
+    display: none;
+  }
+  
+  .modal {
+    padding: 24px;
+  }
+  
+  .modalActions {
+    flex-direction: column;
+  }
+  
+  .studentStats {
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .statsRow {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .statBox {
+    padding: 12px 16px;
+  }
+  
+  .statValue {
+    font-size: 20px;
+  }
+  
+  .instructorCard {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .quickInfoList li {
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
 }
