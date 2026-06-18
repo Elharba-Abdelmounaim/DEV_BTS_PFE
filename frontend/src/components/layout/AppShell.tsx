@@ -1,6 +1,5 @@
 import { Outlet } from 'react-router-dom';
 import NavBar from './NavBar';
-import styles from './AppShell.module.css';
 import { memo } from 'react';
 
 

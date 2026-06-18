@@ -64,10 +64,37 @@ export interface Submission {
   graded_at?: string;
   submitted_at?: string;
   is_late?: boolean;
+  student_notes?: string;
   student?: User;
   assignment?: Assignment;
   created_at: string;
   updated_at: string;
+}
+
+export interface Quiz {
+  id: string;
+  lesson_id: string;
+  title: string;
+  description?: string;
+  passing_score: number;
+  questions: QuizQuestion[];
+}
+
+export interface QuizQuestion {
+  id: string;
+  quiz_id: string;
+  question_text: string;
+  question_type: 'multiple_choice' | 'true_false' | 'short_answer' | 'code';
+  points: number;
+  options?: QuizOption[];
+  correct_answer?: string;
+}
+
+export interface QuizOption {
+  id: string;
+  question_id: string;
+  option_text: string;
+  is_correct: boolean;
 }
 
 export interface Enrollment {

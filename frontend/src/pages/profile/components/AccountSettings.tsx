@@ -5,7 +5,6 @@ import styles from '../Profile.module.css';
 
 export const AccountSettings: React.FC = () => {
   const { user, logout } = useAuth();
-  const [confirmDelete, setConfirmDelete] = React.useState(false);
 
   const handleLogout = async () => {
     if (window.confirm('Are you sure you want to logout?')) {

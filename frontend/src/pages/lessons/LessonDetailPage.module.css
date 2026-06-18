@@ -1,0 +1,99 @@
+/* src/pages/lessons/LessonDetailPage.module.css */
+.page {
+  min-height: 100vh;
+  background: #f8fafc;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: white;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 14px;
+}
+
+.breadcrumbLink {
+  color: #3b82f6;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.breadcrumbLink:hover {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+.breadcrumbSeparator {
+  color: #94a3b8;
+}
+
+.breadcrumbCurrent {
+  color: #0f172a;
+  font-weight: 500;
+}
+
+.content {
+  padding: 24px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 16px;
+}
+
+.loadingSpinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #e2e8f0;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 8px;
+  text-align: center;
+}
+
+.errorIcon {
+  font-size: 48px;
+}
+
+.error h2 {
+  font-size: 24px;
+  color: #0f172a;
+  margin: 0;
+}
+
+.error p {
+  color: #64748b;
+  margin: 0;
+}
+
+.backLink {
+  margin-top: 12px;
+  color: #3b82f6;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.backLink:hover {
+  color: #2563eb;
+}

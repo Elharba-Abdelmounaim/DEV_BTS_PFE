@@ -122,7 +122,7 @@ const StatBox: React.FC<{ value: string | number; label: string; icon?: string }
 // ── Main Component ──────────────────────────────────────────────────────────
 export default function CourseDetail() {
   const { courseId } = useParams<{ courseId: string }>();
-  const { user, isTeacher } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   // State

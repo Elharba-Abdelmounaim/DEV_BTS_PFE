@@ -1,4 +1,4 @@
-import { createContext, useContext, useReducer, useEffect, ReactNode, useCallback, useRef } from 'react';
+import { createContext, useContext, useReducer, useEffect, ReactNode, useRef } from 'react';
 import { login as apiLogin, register as apiRegister, logout as apiLogout, me } from '../api/auth';
 import type { User, LoginPayload, RegisterPayload } from '../types';
 

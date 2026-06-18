@@ -1,5 +1,5 @@
 // src/pages/profile/Profile.tsx
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useProfile } from './hooks/useProfile';
 import { ProfileHeader } from './components/ProfileHeader';
 import ProfileStats from './components/ProfileStats';
@@ -19,7 +19,6 @@ export default function Profile() {
     success,
     updateProfile,
     changePassword,
-    refresh,
     clearMessages,
   } = useProfile();
 

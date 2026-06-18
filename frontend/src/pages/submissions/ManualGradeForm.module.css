@@ -1,37 +1,692 @@
-.form { padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+/* src/pages/submissions/ManualGradeForm.module.css */
 
-.info { display: flex; flex-direction: column; gap: 8px; padding: 12px 16px; background: var(--color-bg); border: 1px solid var(--color-border); border-radius: var(--radius-md); }
-.repoLink { font-family: monospace; font-size: 13px; color: var(--color-primary); }
-.repoLink:hover { text-decoration: underline; }
-.autoScore { font-size: 12px; color: var(--color-ink-3); font-weight: 500; }
-.studentNotes { font-size: 13px; color: var(--color-ink-2); line-height: 1.6; }
-.notesLabel { font-weight: 600; color: var(--color-ink-3); font-size: 11px; text-transform: uppercase; letter-spacing: .04em; display: block; margin-bottom: 3px; }
+.panel {
+  background: white;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+  max-width: 700px;
+  margin: 0 auto;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+}
 
-.alert { padding: 10px 14px; background: var(--color-danger-bg); border: 1px solid #F0AAAA; border-radius: var(--radius-md); font-size: 13px; color: var(--color-danger); }
+/* ── Header ────────────────────────────────────────────────────────────────── */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 20px 24px;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
 
-.row { display: grid; grid-template-columns: 180px 1fr; gap: 16px; align-items: start; }
-@media (max-width: 560px) { .row { grid-template-columns: 1fr; } }
+.headerLeft {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
 
-.label { font-size: 13px; font-weight: 500; color: var(--color-ink-2); letter-spacing: .01em; margin-bottom: 6px; display: block; }
-.maxLabel { font-weight: 400; color: var(--color-ink-3); }
+.headerIcon {
+  font-size: 24px;
+}
 
-.scoreField { display: flex; flex-direction: column; }
-.scoreInputWrap { display: flex; flex-direction: column; gap: 8px; }
+.headerTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0 0 2px 0;
+}
 
-.scoreInput { width: 100%; padding: 12px 14px; border: 1.5px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); color: var(--color-ink); font-size: 22px; font-family: var(--font-display); text-align: center; outline: none; transition: border-color var(--duration) var(--ease), box-shadow var(--duration) var(--ease); }
-.scoreInput:focus { border-color: var(--color-primary); box-shadow: 0 0 0 3px var(--color-primary-light); }
-.inputError { border-color: var(--color-danger) !important; }
-.fieldError { font-size: 12px; color: var(--color-danger); font-weight: 500; }
+.headerSub {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0;
+}
 
-.scoreBar { height: 6px; border-radius: 3px; background: linear-gradient(to right, var(--color) var(--pct), var(--color-border) var(--pct)); transition: all .3s ease; }
+.closeBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  color: #94a3b8;
+  transition: all 0.2s;
+  border-radius: 6px;
+}
 
-.feedbackField { display: flex; flex-direction: column; }
-.textarea { width: 100%; padding: 10px 14px; border: 1.5px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); color: var(--color-ink); font-size: 14px; font-family: var(--font-body); resize: vertical; outline: none; line-height: 1.6; transition: border-color var(--duration) var(--ease), box-shadow var(--duration) var(--ease); }
-.textarea::placeholder { color: var(--color-ink-4); }
-.textarea:focus { border-color: var(--color-primary); box-shadow: 0 0 0 3px var(--color-primary-light); }
+.closeBtn:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
 
-.actions { display: flex; align-items: center; gap: 12px; }
-.submitBtn { padding: 9px 20px; background: var(--color-primary); color: #fff; border-radius: var(--radius-md); font-size: 14px; font-weight: 500; font-family: var(--font-body); display: flex; align-items: center; gap: 6px; transition: background var(--duration) var(--ease); }
-.submitBtn:hover:not(:disabled) { background: var(--color-primary-hover); }
-.submitBtn:disabled { opacity: .6; cursor: not-allowed; }
-.hint { font-size: 12px; color: var(--color-ink-3); }
+.closeIcon {
+  font-size: 18px;
+}
+
+/* ── Messages ──────────────────────────────────────────────────────────────── */
+.successMessage,
+.errorMessage {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  margin: 16px 24px 0;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.successMessage {
+  background: #dcfce7;
+  border: 1px solid #86efac;
+  color: #16a34a;
+}
+
+.successIcon {
+  font-size: 18px;
+}
+
+.successText {
+  font-weight: 500;
+}
+
+.errorMessage {
+  background: #fee2e2;
+  border: 1px solid #fca5a5;
+  color: #dc2626;
+}
+
+.errorIcon {
+  font-size: 18px;
+}
+
+.errorText {
+  font-weight: 500;
+}
+
+/* ── Form ────────────────────────────────────────────────────────────────── */
+.form {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ── Student Info ──────────────────────────────────────────────────────────── */
+.studentInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: #f8fafc;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+}
+
+.studentAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #3b82f6;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.studentName {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #0f172a;
+}
+
+.studentEmail {
+  display: block;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.studentStatus {
+  margin-left: auto;
+}
+
+.statusBadge {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 12px;
+  border-radius: 100px;
+}
+
+.statusGraded {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.statusPending {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+/* ── Score Section ──────────────────────────────────────────────────────────── */
+.scoreSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.scoreSectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.scoreLabel {
+  font-size: 14px;
+  font-weight: 500;
+  color: #0f172a;
+}
+
+.required {
+  color: #ef4444;
+}
+
+.scoreRange {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.scoreDisplay {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.scoreInputWrapper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  min-width: 150px;
+}
+
+.scoreInput {
+  width: 100px;
+  padding: 10px 14px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 20px;
+  font-weight: 600;
+  transition: all 0.2s;
+  color: #0f172a;
+  background: white;
+}
+
+.scoreInput:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+}
+
+.scoreInput:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.inputError {
+  border-color: #ef4444 !important;
+}
+
+.inputError:focus {
+  box-shadow: 0 0 0 3px rgba(239,68,68,0.1) !important;
+}
+
+.scoreMax {
+  font-size: 18px;
+  font-weight: 500;
+  color: #94a3b8;
+}
+
+.scoreBadge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.scoreLetter {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.scoreLabel {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* ── Progress Bar ──────────────────────────────────────────────────────────── */
+.progressWrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.progressBar {
+  flex: 1;
+  height: 8px;
+  background: #f1f5f9;
+  border-radius: 100px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 100px;
+  transition: width 0.4s ease;
+}
+
+.progressPercentage {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0f172a;
+  min-width: 45px;
+  text-align: right;
+}
+
+/* ── Auto Score ────────────────────────────────────────────────────────────── */
+.autoScore {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: #f8fafc;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.autoScoreIcon {
+  font-size: 16px;
+}
+
+.autoScoreLabel {
+  font-weight: 500;
+}
+
+.autoScoreValue {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.autoScoreDiff {
+  font-size: 12px;
+  font-weight: 500;
+  color: #3b82f6;
+  padding: 0 4px;
+}
+
+/* ── Field Error ────────────────────────────────────────────────────────────── */
+.fieldError {
+  font-size: 12px;
+  color: #ef4444;
+  margin-top: 4px;
+}
+
+/* ── Feedback Section ──────────────────────────────────────────────────────── */
+.feedbackSection {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.feedbackLabel {
+  font-size: 14px;
+  font-weight: 500;
+  color: #0f172a;
+}
+
+.feedbackOptional {
+  font-size: 12px;
+  font-weight: 400;
+  color: #94a3b8;
+  margin-left: 6px;
+}
+
+.feedbackTextarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  resize: vertical;
+  font-family: inherit;
+  transition: all 0.2s;
+  background: white;
+  color: #0f172a;
+  min-height: 120px;
+}
+
+.feedbackTextarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+}
+
+.feedbackTextarea:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.feedbackCounter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.charWarning {
+  color: #f59e0b;
+}
+
+/* ── Templates ────────────────────────────────────────────────────────────── */
+.templates {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 8px 0;
+}
+
+.templatesLabel {
+  font-size: 12px;
+  font-weight: 500;
+  color: #94a3b8;
+}
+
+.templateBtn {
+  padding: 4px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: white;
+  color: #64748b;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.templateBtn:hover:not(:disabled) {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  transform: scale(1.02);
+}
+
+.templateBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Details ────────────────────────────────────────────────────────────────── */
+.details {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.detailsSummary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  color: #64748b;
+  transition: background 0.2s;
+}
+
+.detailsSummary:hover {
+  background: #f8fafc;
+}
+
+.detailsIcon {
+  font-size: 16px;
+}
+
+.detailsContent {
+  padding: 12px 16px;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.detailRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+}
+
+.detailLabel {
+  color: #94a3b8;
+}
+
+.detailValue {
+  color: #0f172a;
+  font-weight: 500;
+}
+
+.detailLate {
+  color: #ef4444;
+}
+
+.detailLink {
+  color: #3b82f6;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.detailLink:hover {
+  text-decoration: underline;
+}
+
+/* ── Actions ────────────────────────────────────────────────────────────────── */
+.actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 16px;
+  border-top: 1px solid #e2e8f0;
+  gap: 16px;
+}
+
+.actionsLeft {
+  display: flex;
+  gap: 8px;
+}
+
+.actionsRight {
+  display: flex;
+  gap: 10px;
+}
+
+.resetBtn {
+  padding: 8px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: white;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.resetBtn:hover:not(:disabled) {
+  background: #f1f5f9;
+}
+
+.resetBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.resetIcon {
+  font-size: 14px;
+}
+
+.cancelBtn {
+  padding: 8px 20px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: white;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancelBtn:hover:not(:disabled) {
+  background: #f1f5f9;
+}
+
+.cancelBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.saveBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 24px;
+  background: #0f172a;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.saveBtn:hover:not(:disabled) {
+  background: #1e293b;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(15,23,42,0.3);
+}
+
+.saveBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.saveIcon {
+  font-size: 14px;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Responsive ────────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .panel {
+    margin: 0 8px;
+    border-radius: 12px;
+  }
+  
+  .header {
+    padding: 16px;
+  }
+  
+  .form {
+    padding: 16px;
+  }
+  
+  .scoreDisplay {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .scoreBadge {
+    justify-content: center;
+  }
+  
+  .actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .actionsLeft,
+  .actionsRight {
+    justify-content: stretch;
+  }
+  
+  .resetBtn,
+  .cancelBtn,
+  .saveBtn {
+    justify-content: center;
+    flex: 1;
+  }
+  
+  .templates {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .templateBtn {
+    text-align: center;
+  }
+  
+  .studentInfo {
+    flex-wrap: wrap;
+  }
+  
+  .studentStatus {
+    margin-left: 0;
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .headerLeft {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .scoreInput {
+    width: 80px;
+    font-size: 18px;
+  }
+  
+  .scoreLetter {
+    font-size: 20px;
+  }
+  
+  .detailRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+}

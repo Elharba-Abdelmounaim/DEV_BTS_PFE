@@ -1,3 +1,4 @@
+// src/App.tsx
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import { PrivateRoute, TeacherOnly, StudentOnly } from './components/ui/RoleGuard';
@@ -6,23 +7,28 @@ import AuthShell from './components/layout/AuthShell';
 import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
 import Dashboard from './pages/dashboard/Dashboard';
+import Profile from './pages/profile/Profile';
 
-// Week 2 — Student flows
+// ── Courses ────────────────────────────────────────────────────────────────
 import CourseList from './pages/courses/CourseList';
 import CourseDetail from './pages/courses/CourseDetail';
-import AssignmentDetail from './pages/assignments/AssignmentDetail';
-import SubmitForm from './pages/assignments/SubmitForm';
-import SubmissionStatus from './pages/submissions/SubmissionStatus';
-import SubmissionList from './pages/submissions/SubmissionList';
-
-// Week 3 — Teacher flows
 import CreateCoursePage from './pages/courses/CreateCoursePage';
 import EditCoursePage from './pages/courses/EditCoursePage';
+
+// ── Lessons ─────────────────────────────────────────────────────────────────
+import LessonsPage from './pages/lessons/LessonsPage';
+import LessonDetailPage from './pages/lessons/LessonDetailPage';
+
+// ── Assignments ─────────────────────────────────────────────────────────────
+import AssignmentListPage from './pages/assignments/AssignmentListPage';
+import AssignmentDetailPage from './pages/assignments/AssignmentDetailPage';
 import CreateAssignmentPage from './pages/assignments/CreateAssignmentPage';
 import TeacherSubmissions from './pages/assignments/TeacherSubmissions';
+import SubmitForm from './pages/assignments/SubmitForm'; // ✅ أضف هذا الـ import
 
-// ✅ استيراد الـ Profile
-import Profile from './pages/profile/Profile';
+// ── Submissions ─────────────────────────────────────────────────────────────
+import SubmissionList from './pages/submissions/SubmissionList';
+import SubmissionStatus from './pages/submissions/SubmissionStatus';
 
 export default function App() {
   const { user, loading } = useAuth();
@@ -50,14 +56,8 @@ export default function App() {
     <Routes>
       {/* Public routes */}
       <Route element={<AuthShell />}>
-        <Route
-          path="/login"
-          element={user ? <Navigate to="/" replace /> : <LoginPage />}
-        />
-        <Route
-          path="/register"
-          element={user ? <Navigate to="/" replace /> : <RegisterPage />}
-        />
+        <Route path="/login" element={user ? <Navigate to="/" replace /> : <LoginPage />} />
+        <Route path="/register" element={user ? <Navigate to="/" replace /> : <RegisterPage />} />
       </Route>
 
       {/* Protected routes */}
@@ -65,36 +65,46 @@ export default function App() {
         <Route element={<AppShell />}>
           <Route path="/" element={<Dashboard />} />
 
-          {/* Shared routes between Student and Teacher */}
+          {/* ── Courses ──────────────────────────────────────────────────── */}
           <Route path="/courses" element={<CourseList />} />
           <Route path="/courses/:courseId" element={<CourseDetail />} />
-
-          {/* Student routes */}
-          <Route element={<StudentOnly />}>
-            <Route path="/assignments/:assignmentId" element={<AssignmentDetail />} />
-            <Route path="/assignments/:assignmentId/submit" element={<SubmitForm />} />
-            <Route path="/submissions/:submissionId" element={<SubmissionStatus />} />
-            <Route path="/submissions" element={<SubmissionList />} />
-          </Route>
-
-          {/* Teacher routes */}
+          
+          {/* Teacher courses */}
           <Route element={<TeacherOnly />}>
             <Route path="/courses/new" element={<CreateCoursePage />} />
             <Route path="/courses/:courseId/edit" element={<EditCoursePage />} />
+          </Route>
+
+          {/* ── Lessons ──────────────────────────────────────────────────── */}
+          <Route path="/courses/:courseId/lessons" element={<LessonsPage />} />
+          <Route path="/courses/:courseId/lessons/:lessonId" element={<LessonDetailPage />} />
+
+          {/* ── Assignments ────────────────────────────────────────────────── */}
+          <Route path="/assignments" element={<AssignmentListPage />} />
+          <Route path="/assignments/:assignmentId" element={<AssignmentDetailPage />} />
+          
+          {/* Student assignments */}
+          <Route element={<StudentOnly />}>
+            <Route path="/assignments/:assignmentId/submit" element={<SubmitForm />} />
+          </Route>
+          
+          {/* Teacher assignments */}
+          <Route element={<TeacherOnly />}>
             <Route path="/assignments/new" element={<CreateAssignmentPage />} />
             <Route path="/assignments/:assignmentId/submissions" element={<TeacherSubmissions />} />
           </Route>
 
-          {/* ✅ Profile - داخل AppShell */}
+          {/* ── Submissions ────────────────────────────────────────────────── */}
+          <Route path="/submissions" element={<SubmissionList />} />
+          <Route path="/submissions/:submissionId" element={<SubmissionStatus />} />
+
+          {/* ── Profile ────────────────────────────────────────────────────── */}
           <Route path="/profile" element={<Profile />} />
 
-          {/* Shared routes */}
+          {/* ── Notifications ─────────────────────────────────────────────── */}
           <Route path="/notifications" element={<div>Notifications (à venir)</div>} />
         </Route>
       </Route>
-
-      {/* ❌ حذف هذا السطر - الـ Profile الآن داخل AppShell */}
-      {/* <Route path="/profile" element={<Profile />} /> */}
 
       {/* Catch-all */}
       <Route path="*" element={<Navigate to="/" replace />} />

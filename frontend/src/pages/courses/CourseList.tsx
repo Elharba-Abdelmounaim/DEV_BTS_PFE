@@ -202,7 +202,6 @@ const CourseCardSkeleton: React.FC = () => (
 // ── Main Component ──────────────────────────────────────────────────────────
 export default function CourseList() {
   const { user, isTeacher } = useAuth();
-  const navigate = useNavigate();
 
   // State
   const [courses, setCourses] = useState<Course[]>([]);
