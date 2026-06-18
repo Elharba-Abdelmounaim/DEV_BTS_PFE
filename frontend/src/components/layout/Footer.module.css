@@ -1,0 +1,227 @@
+/* src/components/layout/Footer.module.css */
+
+.footer {
+  background: #0f172a;
+  color: #94a3b8;
+  padding: 40px 32px 20px;
+  margin-top: auto;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* ── Top Row: Brand + Social ──────────────────────────────────────────────── */
+.topRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+/* Brand Wrapper */
+.brandWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.brandIcon {
+  color: #3b82f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.brandTitle {
+  font-size: 22px;
+  font-weight: 700;
+  color: white;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.brandHighlight {
+  color: #3b82f6;
+}
+
+.brandHub {
+  color: #8b5cf6;
+}
+
+.brandDesc {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+}
+
+/* Social Media */
+.social {
+  display: flex;
+  gap: 12px;
+}
+
+.socialLink {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  transition: all 0.3s;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.socialLink:hover {
+  background: #3b82f6;
+  color: white;
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.socialLink svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* ── Links Row ──────────────────────────────────────────────────────────────── */
+.linksRow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+  padding: 24px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.linksColumn h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+  margin: 0 0 12px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.link {
+  display: block;
+  font-size: 14px;
+  color: #94a3b8;
+  text-decoration: none;
+  padding: 4px 0;
+  transition: all 0.2s;
+}
+
+.link:hover {
+  color: white;
+  padding-left: 6px;
+}
+
+/* Contact Info */
+.contactInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #94a3b8;
+  margin: 4px 0;
+}
+
+.contactIcon {
+  font-size: 16px;
+}
+
+/* ── Bottom Row: Copyright ──────────────────────────────────────────────────── */
+.bottomRow {
+  padding-top: 16px;
+  text-align: center;
+}
+
+.copyright {
+  font-size: 13px;
+  color: #475569;
+  margin: 0;
+}
+
+.copyrightHighlight {
+  color: #3b82f6;
+}
+
+/* ── Responsive ────────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .footer {
+    padding: 32px 16px 16px;
+  }
+
+  .topRow {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .brand {
+    justify-content: center;
+  }
+
+  .brandWrapper {
+    align-items: center;
+  }
+
+  .linksRow {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    text-align: center;
+  }
+
+  .linksColumn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .link {
+    padding: 4px 0;
+  }
+
+  .link:hover {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .contactInfo {
+    justify-content: center;
+  }
+
+  .social {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .brandTitle {
+    font-size: 18px;
+  }
+
+  .socialLink {
+    width: 36px;
+    height: 36px;
+  }
+
+  .socialLink svg {
+    width: 16px;
+    height: 16px;
+  }
+}

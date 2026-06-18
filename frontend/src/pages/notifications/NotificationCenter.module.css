@@ -1,0 +1,101 @@
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 32px 16px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.header h2 {
+  margin: 0;
+  color: #111827;
+}
+
+.markAllBtn {
+  background: none;
+  border: none;
+  color: #4f46e5;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.markAllBtn:hover {
+  text-decoration: underline;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.notification {
+  display: flex;
+  gap: 16px;
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: 1px solid #f3f4f6;
+  position: relative;
+}
+
+.notification:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+}
+
+.notification.unread {
+  background: #fefce8;
+  border-color: #fef08a;
+}
+
+.icon {
+  font-size: 1.5rem;
+}
+
+.content {
+  flex: 1;
+}
+
+.content h4 {
+  margin: 0 0 4px 0;
+  color: #111827;
+}
+
+.content p {
+  margin: 0 0 8px 0;
+  color: #4b5563;
+  font-size: 0.95rem;
+}
+
+.content span {
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+.unreadDot {
+  width: 10px;
+  height: 10px;
+  background: #eab308;
+  border-radius: 50%;
+  position: absolute;
+  top: 24px;
+  right: 24px;
+}
+
+.emptyState, .loading {
+  text-align: center;
+  padding: 48px;
+  background: white;
+  border-radius: 12px;
+  color: #6b7280;
+  border: 1px dashed #e5e7eb;
+}

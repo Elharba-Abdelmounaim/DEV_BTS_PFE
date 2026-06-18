@@ -122,26 +122,17 @@ export function useProfile(): UseProfileReturn {
       setError(null);
       setSuccess(null);
 
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('No authentication token found');
-      }
-
-      const response = await fetch('/api/v1/auth/update', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(data),
+      // Clean empty strings to null or omit them to pass validation
+      const payload = { ...data };
+      Object.keys(payload).forEach(key => {
+        if (payload[key as keyof UpdateProfilePayload] === '') {
+          delete payload[key as keyof UpdateProfilePayload];
+        }
       });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Update failed' }));
-        throw new Error(errorData.message || 'Update failed');
-      }
+      const response = await client.put('/auth/update', payload);
 
-      const result = await response.json();
+      const result = response.data;
       const updatedUser = result.user || result.data || result;
       
       if (updatedUser && updatedUser.id) {
@@ -167,11 +158,6 @@ export function useProfile(): UseProfileReturn {
       setError(null);
       setSuccess(null);
 
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('No authentication token found');
-      }
-
       // ✅ التحقق من تطابق كلمة المرور
       if (data.password !== data.password_confirmation) {
         throw new Error('Passwords do not match');
@@ -181,19 +167,7 @@ export function useProfile(): UseProfileReturn {
         throw new Error('Password must be at least 8 characters');
       }
 
-      const response = await fetch('/api/v1/auth/change-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Password change failed' }));
-        throw new Error(errorData.message || 'Password change failed');
-      }
+      await client.post('/auth/change-password', data);
 
       setSuccess('Password changed successfully!');
 
@@ -211,11 +185,6 @@ export function useProfile(): UseProfileReturn {
       setError(null);
       setSuccess(null);
 
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('No authentication token found');
-      }
-
       // ✅ التحقق من حجم الصورة
       if (file.size > 5 * 1024 * 1024) {
         throw new Error('Image size must be less than 5MB');
@@ -224,20 +193,13 @@ export function useProfile(): UseProfileReturn {
       const formData = new FormData();
       formData.append('avatar', file);
 
-      const response = await fetch('/api/v1/auth/avatar', {
-        method: 'POST',
+      const response = await client.post('/auth/avatar', formData, {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
         },
-        body: formData,
       });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Avatar upload failed' }));
-        throw new Error(errorData.message || 'Avatar upload failed');
-      }
-
-      const result = await response.json();
+      const result = response.data;
       const updatedUser = result.user || result.data || result;
       
       if (updatedUser && updatedUser.id) {
@@ -249,7 +211,7 @@ export function useProfile(): UseProfileReturn {
       }
 
     } catch (err: any) {
-      setError(err?.message || 'Failed to upload avatar');
+      setError(err?.response?.data?.message || err?.message || 'Failed to upload avatar');
     } finally {
       setUpdating(false);
     }

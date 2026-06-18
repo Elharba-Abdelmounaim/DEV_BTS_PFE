@@ -83,20 +83,7 @@ export const AccountSettings: React.FC = () => {
           </button>
         </div>
 
-        <div className={styles.settingItem}>
-          <div className={styles.settingInfo}>
-            <h4 className={styles.settingTitle}>Delete Account</h4>
-            <p className={styles.settingDesc}>
-              Permanently delete your account and all associated data
-            </p>
-          </div>
-          <button 
-            onClick={handleDeleteAccount} 
-            className={styles.deleteBtn}
-          >
-            🗑️ Delete Account
-          </button>
-        </div>
+        
       </div>
     </div>
   );

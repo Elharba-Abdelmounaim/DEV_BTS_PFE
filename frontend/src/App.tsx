@@ -3,11 +3,14 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import { PrivateRoute, TeacherOnly, StudentOnly } from './components/ui/RoleGuard';
 import AppShell from './components/layout/AppShell';
+
 import AuthShell from './components/layout/AuthShell';
 import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
 import Dashboard from './pages/dashboard/Dashboard';
 import Profile from './pages/profile/Profile';
+import NotificationCenter from './pages/notifications/NotificationCenter';
+import PortfolioPage from './pages/portfolio/PortfolioPage';
 
 // ── Courses ────────────────────────────────────────────────────────────────
 import CourseList from './pages/courses/CourseList';
@@ -24,7 +27,7 @@ import AssignmentListPage from './pages/assignments/AssignmentListPage';
 import AssignmentDetailPage from './pages/assignments/AssignmentDetailPage';
 import CreateAssignmentPage from './pages/assignments/CreateAssignmentPage';
 import TeacherSubmissions from './pages/assignments/TeacherSubmissions';
-import SubmitForm from './pages/assignments/SubmitForm'; // ✅ أضف هذا الـ import
+import SubmitForm from './pages/assignments/SubmitForm'; 
 
 // ── Submissions ─────────────────────────────────────────────────────────────
 import SubmissionList from './pages/submissions/SubmissionList';
@@ -86,6 +89,7 @@ export default function App() {
           {/* Student assignments */}
           <Route element={<StudentOnly />}>
             <Route path="/assignments/:assignmentId/submit" element={<SubmitForm />} />
+            <Route path="/portfolio" element={<PortfolioPage />} />
           </Route>
           
           {/* Teacher assignments */}
@@ -102,7 +106,7 @@ export default function App() {
           <Route path="/profile" element={<Profile />} />
 
           {/* ── Notifications ─────────────────────────────────────────────── */}
-          <Route path="/notifications" element={<div>Notifications (à venir)</div>} />
+          <Route path="/notifications" element={<NotificationCenter />} />
         </Route>
       </Route>
 

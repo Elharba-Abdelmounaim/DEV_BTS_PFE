@@ -75,11 +75,11 @@ export default function NavBar() {
           </span>
         </button>
 
-        {/* ── Brand ──────────────────────────────────────────────────────── */}
+        {/* ── Brand (مثل الـ Footer) ──────────────────────────────────────── */}
         <Link to="/dashboard" className={styles.brand}>
           <div className={styles.brandIcon}>
             <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-              <rect width="32" height="32" rx="8" fill="currentColor"/>
+              <rect width="32" height="32" rx="8" fill="#3b82f6"/>
               <path d="M8 16L14 10L20 16L26 10" stroke="white" strokeWidth="2.5"
                 strokeLinecap="round" strokeLinejoin="round"/>
               <path d="M8 22L14 16L20 22L26 16" stroke="white" strokeWidth="2.5"
@@ -87,7 +87,8 @@ export default function NavBar() {
             </svg>
           </div>
           <div className={styles.brandText}>
-            <span className={styles.brandName}>DevEdu</span>
+            <span className={styles.brandName}>Dev</span>
+            <span className={styles.brandEdu}>Edu</span>
             <span className={styles.brandHub}>Hub</span>
           </div>
         </Link>
@@ -190,7 +191,6 @@ export default function NavBar() {
                 <div className={styles.dropdownSection}>
                   <h3 className={styles.dropdownSectionTitle}>Quick Navigation</h3>
                   
-                  {/* Profile - always visible */}
                   <NavLink
                     to="/profile"
                     className={({ isActive }) =>
@@ -210,7 +210,6 @@ export default function NavBar() {
                     </div>
                   </NavLink>
 
-                  {/* Notifications */}
                   <NavLink
                     to="/notifications"
                     className={({ isActive }) =>
@@ -230,7 +229,6 @@ export default function NavBar() {
                     </div>
                   </NavLink>
 
-                  {/* Assignments */}
                   <NavLink
                     to="/assignments"
                     className={({ isActive }) =>
@@ -250,7 +248,6 @@ export default function NavBar() {
                     </div>
                   </NavLink>
 
-                  {/* Submissions */}
                   <NavLink
                     to="/submissions"
                     className={({ isActive }) =>
@@ -275,7 +272,7 @@ export default function NavBar() {
                 <div className={styles.dropdownSection}>
                   <h3 className={styles.dropdownSectionTitle}>Help & Support</h3>
                   <NavLink
-                    to="/help"
+                    to="/support"
                     className={({ isActive }) =>
                       `${styles.dropdownItem} ${isActive ? styles.dropdownItemActive : ''}`
                     }
@@ -320,10 +317,8 @@ export default function NavBar() {
 
         {/* ── Right Area ────────────────────────────────────────────────── */}
         <div className={styles.rightArea}>
-          {/* Notification bell */}
           <NotificationPanel />
 
-          {/* User menu */}
           <div className={styles.userArea} ref={menuRef}>
             <button
               className={styles.userBtn}
@@ -434,7 +429,7 @@ export default function NavBar() {
                 </Link>
 
                 <Link
-                  to="/help"
+                  to="/support"
                   className={styles.dropdownItem}
                   onClick={() => setMenuOpen(false)}
                   role="menuitem"

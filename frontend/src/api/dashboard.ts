@@ -9,6 +9,7 @@ export interface DashboardStats {
   avgScore: number | null;
   unreadNotifications: number;
   enrollmentsCount: number;
+  trends?: { date: string; count: number }[];
 }
 
 export interface RecentActivity {
@@ -20,63 +21,15 @@ export interface RecentActivity {
   link?: string;
 }
 
-// ── Teacher stats ──────────────────────────────────────────────────────────────
-export async function getTeacherStats(): Promise<DashboardStats> {
-  const [coursesRes, submissionsRes, notifsRes] = await Promise.all([
-    client.get('/courses'),
-    client.get('/submissions'),
-    client.get('/notifications/unread'),
-  ]);
-
-  const courses: Course[] = coursesRes.data.data ?? [];
-  const submissions: Submission[] = submissionsRes.data.data ?? [];
-  const notifications: Notification[] = notifsRes.data.data ?? [];
-
-  const graded = submissions.filter(s => s.submission_status === 'graded');
-  const avgScore = graded.length
-    ? Math.round(graded.reduce((sum, s) => sum + (Number(s.final_score) || 0), 0) / graded.length)
-    : null;
-
-  return {
-    coursesCount: courses.length,
-    submissionsCount: submissions.length,
-    gradedCount: graded.length,
-    pendingCount: submissions.filter(s => s.submission_status === 'pending').length,
-    avgScore,
-    unreadNotifications: notifications.length,
-    enrollmentsCount: courses.reduce((sum, c) => sum + (c.enrollments_count ?? 0), 0),
-  };
+// ── Dashboard stats ────────────────────────────────────────────────────────────
+export async function getDashboardStats(): Promise<DashboardStats> {
+  const res = await client.get('/dashboard/stats');
+  return res.data.data;
 }
 
-// ── Student stats ──────────────────────────────────────────────────────────────
-export async function getStudentStats(): Promise<DashboardStats> {
-  const [coursesRes, submissionsRes, notifsRes, enrollmentsRes] = await Promise.all([
-    client.get('/courses'),
-    client.get('/submissions/my'),
-    client.get('/notifications/unread'),
-    client.get('/enrollments'),
-  ]);
-
-  const courses: Course[] = coursesRes.data.data ?? [];
-  const submissions: Submission[] = submissionsRes.data.data ?? [];
-  const notifications: Notification[] = notifsRes.data.data ?? [];
-  const enrollments: Enrollment[] = enrollmentsRes.data.data ?? [];
-
-  const graded = submissions.filter(s => s.submission_status === 'graded');
-  const avgScore = graded.length
-    ? Math.round(graded.reduce((sum, s) => sum + (Number(s.final_score) || 0), 0) / graded.length)
-    : null;
-
-  return {
-    coursesCount: courses.length,
-    submissionsCount: submissions.length,
-    gradedCount: graded.length,
-    pendingCount: submissions.filter(s => s.submission_status === 'pending').length,
-    avgScore,
-    unreadNotifications: notifications.length,
-    enrollmentsCount: enrollments.filter(e => e.status === 'active').length,
-  };
-}
+// Keep export aliases for backward compatibility in components
+export const getTeacherStats = getDashboardStats;
+export const getStudentStats = getDashboardStats;
 
 // ── Recent activity (submissions + notifications merged) ───────────────────────
 export async function getRecentActivity(limit = 8): Promise<RecentActivity[]> {

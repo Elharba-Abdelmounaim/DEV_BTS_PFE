@@ -19,6 +19,7 @@ use App\Http\Controllers\PortfolioController;
 use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\CourseModuleController;
 use App\Http\Controllers\LessonController;
+use App\Http\Controllers\DashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -53,6 +54,15 @@ Route::prefix('v1')->group(function () {
         Route::put('update',  [AuthController::class, 'update']);
         Route::post('change-password', [AuthController::class, 'changePassword']);
         Route::post('avatar', [AuthController::class, 'updateAvatar']);
+    });
+
+    /*
+    |-------------------------
+    | DASHBOARD
+    |-------------------------
+    */
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('dashboard/stats', [DashboardController::class, 'stats']);
     });
 
     /*
@@ -162,6 +172,17 @@ Route::prefix('v1')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('webhooks/register', [WebhookController::class, 'register']);
         Route::delete('webhooks/{webhook}', [WebhookController::class, 'destroy']);
+    });
+
+    /*
+    |-------------------------
+    | AI FEATURES
+    |-------------------------
+    */
+    Route::middleware('auth:sanctum')->prefix('ai')->group(function () {
+        Route::get('recommendations', [\App\Http\Controllers\AIController::class, 'recommendations']);
+        Route::get('insights', [\App\Http\Controllers\AIController::class, 'insights']);
+        Route::post('chat', [\App\Http\Controllers\AIController::class, 'chat']);
     });
 
     /*

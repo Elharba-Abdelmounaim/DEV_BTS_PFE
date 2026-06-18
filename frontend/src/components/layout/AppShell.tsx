@@ -1,12 +1,10 @@
 import { Outlet } from 'react-router-dom';
 import NavBar from './NavBar';
+import Footer from './Footer';
+import { AIAssistantWidget } from '../ui/AIAssistantWidget';
 import { memo } from 'react';
 
-
-
 function AppShell() {
-
-  
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <NavBar />
@@ -15,6 +13,8 @@ function AppShell() {
           <Outlet />
         </div>
       </main>
+      <AIAssistantWidget />
+      <Footer />
     </div>
   );
 }

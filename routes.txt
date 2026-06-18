@@ -1,0 +1,25 @@
+
+   ReflectionException 
+
+  Class "DashboardController" does not exist
+
+  at vendor/laravel/framework/src/Illuminate/Foundation/Console/RouteListCommand.php:274
+    270▕             if ($this->isFrameworkController($route)) {
+    271▕                 return false;
+    272▕             }
+    273▕ 
+  ➜ 274▕             $path = (new ReflectionClass($route->getControllerClass()))
+    275▕                 ->getFileName();
+    276▕         } else {
+    277▕             return false;
+    278▕         }
+
+      [2m+3 vendor frames [22m
+
+  4   [internal]:0
+      Illuminate\Foundation\Console\RouteListCommand::Illuminate\Foundation\Console\{closure}(Object(Illuminate\Routing\Route))
+      [2m+17 vendor frames [22m
+
+  22  artisan:16
+      Illuminate\Foundation\Application::handleCommand(Object(Symfony\Component\Console\Input\ArgvInput))
+

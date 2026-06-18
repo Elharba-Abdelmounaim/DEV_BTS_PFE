@@ -295,3 +295,72 @@
     display: none;
   }
 }
+
+/* ── Brand (مثل الـ Footer) ─────────────────────────────────────────────────── */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.brandIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.brandIcon svg {
+  width: 34px;
+  height: 34px;
+}
+
+.brandText {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.brandName {
+  color: #3b82f6;
+}
+
+.brandEdu {
+  color: #0f172a;
+}
+
+.brandHub {
+  color: #8b5cf6;
+}
+
+/* ── Mobile responsive ──────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .brandText {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .brandIcon svg {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .brandText {
+    font-size: 0.85rem;
+  }
+  
+  .brandName {
+    display: none;
+  }
+  
+  .brandEdu {
+    display: none;
+  }
+  
+  .brandHub {
+    display: none;
+  }
+}
