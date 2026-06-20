@@ -12,23 +12,6 @@ export const AccountSettings: React.FC = () => {
     }
   };
 
-  const handleDeleteAccount = async () => {
-    if (window.confirm('Are you sure you want to delete your account? This action cannot be undone!')) {
-      // API call to delete account
-      try {
-        await fetch('/api/v1/auth/delete', {
-          method: 'DELETE',
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          },
-        });
-        await logout();
-      } catch (error) {
-        console.error('Failed to delete account', error);
-      }
-    }
-  };
-
   return (
     <div className={styles.accountSettings}>
       <div className={styles.formSection}>

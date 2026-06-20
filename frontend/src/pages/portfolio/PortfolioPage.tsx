@@ -157,13 +157,11 @@ function StatCard({ value, label, icon: Icon, color = '#3b82f6' }: {
 
 // ── Main Component ──────────────────────────────────────────────────────────
 export default function PortfolioPage() {
-  const { user, isStudent } = useAuth();
+  const { user } = useAuth();
 
   // ── State ──────────────────────────────────────────────────────────────────
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
-  const [enrolledCourses, setEnrolledCourses] = useState<Course[]>([]);
-  const [courseProgress, setCourseProgress] = useState<Record<string, any>>({});
   const [projects, setProjects] = useState<PortfolioProject[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -195,7 +193,6 @@ export default function PortfolioPage() {
           console.error(`Failed to load course ${id}:`, err);
         }
       }
-      setEnrolledCourses(coursesData);
 
       // 3. Load progress for each course
       const progressMap: Record<string, any> = {};
@@ -209,7 +206,6 @@ export default function PortfolioPage() {
           console.error(`Failed to load progress for course ${course.id}:`, err);
         }
       }
-      setCourseProgress(progressMap);
 
       // 4. Build projects from courses
       const projectsData: PortfolioProject[] = coursesData.map(course => {

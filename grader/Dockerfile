@@ -4,7 +4,7 @@ FROM python:3.11-slim
 # Build argument for host Docker GID
 ARG DOCKER_GID
 
-# Install git + Docker CLI (MUST run as root)
+# Install git + Docker 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         git curl ca-certificates gnupg \
     && curl -fsSL https://download.docker.com/linux/debian/gpg \

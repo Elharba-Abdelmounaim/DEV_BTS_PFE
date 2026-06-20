@@ -1,8 +1,8 @@
 // src/pages/assignments/AssignmentDetailPage.tsx
 import { useState, useEffect, useMemo } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { assignmentsApi } from '../../api/assignments';
+import { assignmentsApi, submissionsApi } from '../../api/assignments';
 import { getMySubmissions } from '../../api/assignments';
 import type { Assignment, Submission } from '../../types';
 import styles from './AssignmentDetailPage.module.css';
@@ -83,8 +83,7 @@ function StatItem({ label, value, icon: Icon }: { label: string; value: string |
 // ── Main Component ──────────────────────────────────────────────────────────
 export default function AssignmentDetailPage() {
   const { assignmentId } = useParams<{ assignmentId: string }>();
-  const { isTeacher, isStudent, user } = useAuth();
-  const navigate = useNavigate();
+  const { isTeacher, isStudent } = useAuth();
 
   // ── State ──────────────────────────────────────────────────────────────────
   const [assignment, setAssignment] = useState<Assignment | null>(null);
@@ -113,7 +112,7 @@ export default function AssignmentDetailPage() {
 
       // Load submissions for teacher or student
       if (isTeacher) {
-        const subs = await assignmentsApi.byCourse(data.course_id);
+        const subs = await submissionsApi.byAssignment(assignmentId);
         setSubmissions(subs);
       } else if (isStudent) {
         const mySubs = await getMySubmissions();

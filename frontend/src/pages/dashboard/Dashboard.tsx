@@ -1,5 +1,5 @@
 // src/pages/dashboard/Dashboard.tsx
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getCourses } from '../../api/courses';
@@ -124,7 +124,6 @@ function ProgramCard({
 }) {
   const isCompleted = progress?.percent === 100;
   const isInProgress = progress && progress.percent > 0 && progress.percent < 100;
-  const isNotStarted = !progress || progress.percent === 0;
 
   const status = isCompleted ? 'completed' : isInProgress ? 'in-progress' : 'not-started';
   const statusMap = {
@@ -320,7 +319,7 @@ export default function Dashboard() {
               Welcome to the <span className={styles.heroHighlight}>eHub</span>
             </h1>
             <p className={styles.heroSubtitle}>
-              Your ALX Learning Journey Starts Here
+              Your DevEduHub Learning Journey Starts Here
             </p>
             <p className={styles.heroDescription}>
               Track your progress, achieve your goals.
