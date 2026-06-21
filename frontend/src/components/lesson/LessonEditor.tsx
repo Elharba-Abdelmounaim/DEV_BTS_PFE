@@ -1,26 +1,30 @@
-// src/pages/teacher/LessonEditor.tsx
-import React, { useState, useEffect } from 'react';
+// src/components/lesson/LessonEditor.tsx
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { lessonsApi, modulesApi } from '../../api/lessons';
-import TipTapEditor from '../courses/lessons/TipTapEditor';
+import { lessonsApi } from '../../api/lessons';
+import TipTapEditor from '../../pages/courses/lessons/TipTapEditor';
 import styles from './LessonEditor.module.css';
+
+// ── Types ─────────────────────────────────────────────────────────────────────
+type LessonType = 'reading' | 'video' | 'quiz' | 'assignment';
 
 interface LessonData {
   title: string;
   excerpt: string;
   body_html: string;
   video_url: string;
-  lesson_type: string;
+  lesson_type: LessonType;
   duration_minutes: number;
   is_published: boolean;
   order_index: number;
 }
 
+// ── Component ─────────────────────────────────────────────────────────────────
 export default function LessonEditor() {
-  const { courseId, moduleId, lessonId } = useParams<{ 
-    courseId: string; 
-    moduleId: string; 
+  const { courseId, moduleId, lessonId } = useParams<{
+    courseId: string;
+    moduleId: string;
     lessonId: string;
   }>();
   const navigate = useNavigate();
@@ -37,9 +41,10 @@ export default function LessonEditor() {
     order_index: 0,
   });
 
-  const [loading, setLoading] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [content, setContent] = useState('');
+  const [loading, setLoading]     = useState(false);
+  const [saving, setSaving]       = useState(false);
+  const [content, setContent]     = useState<Record<string, unknown> | null>(null);
+  const [htmlContent, setHtmlContent] = useState('');
 
   useEffect(() => {
     if (lessonId && moduleId && courseId) {
@@ -49,21 +54,22 @@ export default function LessonEditor() {
 
   const loadLesson = async () => {
     if (!lessonId || !moduleId || !courseId) return;
-    
+
     try {
       setLoading(true);
       const data = await lessonsApi.get(courseId, moduleId, lessonId);
       setLesson({
-        title: data.title,
-        excerpt: data.excerpt || '',
-        body_html: data.body_html || '',
-        video_url: data.video_url || '',
-        lesson_type: data.lesson_type,
+        title:            data.title,
+        excerpt:          data.excerpt          || '',
+        body_html:        data.body_html        || '',
+        video_url:        data.video_url        || '',
+        lesson_type:      (data.lesson_type as LessonType) || 'reading',
         duration_minutes: data.duration_minutes || 0,
-        is_published: data.is_published || false,
-        order_index: data.order_index || 0,
+        is_published:     data.is_published     || false,
+        order_index:      data.order_index      || 0,
       });
-      setContent(data.body_html || '');
+      setContent(data.body || null);
+      setHtmlContent(data.body_html || '');
     } catch (error) {
       console.error('Failed to load lesson:', error);
       alert('Failed to load lesson. Please try again.');
@@ -85,10 +91,9 @@ export default function LessonEditor() {
 
     setSaving(true);
     try {
-      const payload = {
+      const payload: LessonData = {
         ...lesson,
-        body_html: content,
-        body: { content },
+        body_html: htmlContent,
       };
 
       if (lessonId) {
@@ -96,11 +101,12 @@ export default function LessonEditor() {
       } else {
         await lessonsApi.create(courseId, moduleId, payload);
       }
-      
+
       navigate(`/courses/${courseId}/lessons`);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Failed to save lesson.';
       console.error('Failed to save lesson:', error);
-      alert(error?.message || 'Failed to save lesson. Please try again.');
+      alert(msg);
     } finally {
       setSaving(false);
     }
@@ -116,17 +122,17 @@ export default function LessonEditor() {
 
   return (
     <div className={styles.editor}>
-      {/* ── Header ────────────────────────────────────────────────────── */}
+      {/* ── Header ───────────────────────────────────────────────────── */}
       <div className={styles.header}>
         <h1>{lessonId ? '✏️ Edit Lesson' : '📝 Create New Lesson'}</h1>
         <div className={styles.actions}>
-          <button 
+          <button
             className={styles.cancelBtn}
             onClick={() => navigate(`/courses/${courseId}/lessons`)}
           >
             Cancel
           </button>
-          <button 
+          <button
             className={styles.saveBtn}
             onClick={handleSave}
             disabled={saving}
@@ -136,12 +142,13 @@ export default function LessonEditor() {
         </div>
       </div>
 
-      {/* ── Form ────────────────────────────────────────────────────── */}
+      {/* ── Form ─────────────────────────────────────────────────────── */}
       <div className={styles.form}>
+
         {/* Basic Info */}
         <div className={styles.section}>
           <h3 className={styles.sectionTitle}>📋 Basic Information</h3>
-          
+
           <div className={styles.field}>
             <label className={styles.label}>Lesson Title *</label>
             <input
@@ -170,7 +177,9 @@ export default function LessonEditor() {
               <select
                 className={styles.select}
                 value={lesson.lesson_type}
-                onChange={(e) => setLesson({ ...lesson, lesson_type: e.target.value })}
+                onChange={(e) =>
+                  setLesson({ ...lesson, lesson_type: e.target.value as LessonType })
+                }
               >
                 <option value="reading">📄 Reading</option>
                 <option value="video">▶️ Video</option>
@@ -186,10 +195,9 @@ export default function LessonEditor() {
                 className={styles.input}
                 placeholder="e.g., 12"
                 value={lesson.duration_minutes}
-                onChange={(e) => setLesson({ 
-                  ...lesson, 
-                  duration_minutes: parseInt(e.target.value) || 0 
-                })}
+                onChange={(e) =>
+                  setLesson({ ...lesson, duration_minutes: parseInt(e.target.value) || 0 })
+                }
                 min={0}
                 max={600}
               />
@@ -201,13 +209,11 @@ export default function LessonEditor() {
             <input
               type="url"
               className={styles.input}
-              placeholder="https://youtube.com/watch?v=... or https://vimeo.com/..."
+              placeholder="https://youtube.com/watch?v=..."
               value={lesson.video_url}
               onChange={(e) => setLesson({ ...lesson, video_url: e.target.value })}
             />
-            <span className={styles.fieldHint}>
-              Supports YouTube and Vimeo links
-            </span>
+            <span className={styles.fieldHint}>Supports YouTube and Vimeo links</span>
           </div>
         </div>
 
@@ -218,12 +224,13 @@ export default function LessonEditor() {
             Write the main content of your lesson. Use the toolbar to format text,
             add images, links, and more.
           </p>
-          
+
           <div className={styles.editorWrapper}>
             <TipTapEditor
               initialContent={content}
-              onChange={(json, html) => {
-                setContent(html);
+              onChange={(json: Record<string, unknown>, html: string) => {
+                setContent(json);
+                setHtmlContent(html);
               }}
             />
           </div>
@@ -232,7 +239,6 @@ export default function LessonEditor() {
         {/* Status */}
         <div className={styles.section}>
           <h3 className={styles.sectionTitle}>📊 Status</h3>
-          
           <div className={styles.statusRow}>
             <label className={styles.checkboxLabel}>
               <input
@@ -254,9 +260,10 @@ export default function LessonEditor() {
           <div className={styles.preview}>
             <div className={styles.previewHeader}>
               <span className={styles.previewBadge}>
-                {lesson.lesson_type === 'video' ? '▶ Video' : 
-                 lesson.lesson_type === 'reading' ? '📄 Reading' : 
-                 lesson.lesson_type === 'quiz' ? '✏️ Quiz' : '📝 Assignment'}
+                {lesson.lesson_type === 'video'      ? '▶ Video'
+                : lesson.lesson_type === 'reading'   ? '📄 Reading'
+                : lesson.lesson_type === 'quiz'      ? '✏️ Quiz'
+                :                                      '📝 Assignment'}
               </span>
               {lesson.duration_minutes > 0 && (
                 <span className={styles.previewDuration}>
@@ -270,14 +277,15 @@ export default function LessonEditor() {
             <p className={styles.previewExcerpt}>
               {lesson.excerpt || 'Excerpt will appear here...'}
             </p>
-            <div 
+            <div
               className={styles.previewContent}
-              dangerouslySetInnerHTML={{ 
-                __html: content || '<p style="color: #94a3b8;">Content will appear here...</p>' 
+              dangerouslySetInnerHTML={{
+                __html: htmlContent || '<p style="color:#94a3b8;">Content will appear here...</p>',
               }}
             />
           </div>
         </div>
+
       </div>
     </div>
   );
