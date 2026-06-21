@@ -1,15 +1,16 @@
-// src/pages/profile/hooks/useProfile.ts
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '../../../context/AuthContext';
 import { me } from '../../../api/auth';
 import { getMySubmissions } from '../../../api/assignments';
 import { getMyEnrollments } from '../../../api/courses';
+import client from '../../../api/client';  // ← أضف هذا السطر
 import type { 
   User, 
   UpdateProfilePayload, 
   ChangePasswordPayload,
   ProfileStats 
 } from '../../../types';
+
 
 interface UseProfileReturn {
   user: User | null;
