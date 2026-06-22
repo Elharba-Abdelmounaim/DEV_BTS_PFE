@@ -38,7 +38,8 @@ export default function LessonEditor() {
 
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [content, setContent] = useState(''); // HTML content
+  const [content, setContent] = useState<Record<string, unknown> | null>(null);
+  const [htmlContent, setHtmlContent] = useState('');
 
   // ── Load lesson if editing ──────────────────────────────────────────────
   useEffect(() => {
@@ -64,7 +65,8 @@ export default function LessonEditor() {
         order_index: data.order_index || 0,
         module_id: data.module_id,
       });
-      setContent(data.body_html || '');
+      setContent(data.body || null);
+      setHtmlContent(data.body_html || '');
     } catch (error) {
       console.error('Failed to load lesson:', error);
     } finally {
@@ -83,8 +85,8 @@ export default function LessonEditor() {
     try {
       const payload = {
         ...lesson,
-        body_html: content,
-        body: { content }, // JSON format for TipTap
+        body_html: htmlContent,
+        body: content ?? {},
       };
 
       if (lessonId) {
@@ -214,8 +216,9 @@ export default function LessonEditor() {
           <div className={styles.editorWrapper}>
             <TipTapEditor
               initialContent={content}
-              onChange={(json, html) => {
-                setContent(html);
+              onChange={(json: Record<string, unknown>, html: string) => {
+                setContent(json);
+                setHtmlContent(html);
               }}
             />
           </div>
